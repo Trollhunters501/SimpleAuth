@@ -128,12 +128,12 @@ class EventListener implements Listener{
                 $command = substr($message, 1);
                 $args = explode(" ", $command);
                 if($args[0] === "register" or $args[0] === "login" or $args[0] === "help"){
-                    $this->plugin->getServer()->dispatchCommand($event->getPlayer(), $command);
                     if (!$this->plugin->getConfig()->get("disableRegister") && $args[0] === "register") {
                         $this->forcePerms($event->getPlayer());
                     }elseif (!$this->plugin->getConfig()->get("disableLogin") && $args[0] === "login") {
                         $this->forcePerms($event->getPlayer());
                     }
+                    $this->plugin->getServer()->dispatchCommand($event->getPlayer(), $command);
                 }else{
                     $this->plugin->sendAuthenticateMessage($event->getPlayer());
                 }
