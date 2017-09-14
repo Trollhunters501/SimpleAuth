@@ -461,17 +461,10 @@ class SimpleAuth extends PluginBase{
                 $xboxIGN = $this->getDataProvider()->unlinkXBL($sender);
                 if($xboxIGN !== null && $xboxIGN !== ""){
                     $currentIGN = $sender->getName();
-                    if(Server::getInstance()->getPlayerExact($xboxIGN) === null){ //user unlinked after linking without relog
-                        $line1 = $this->getMessage("link.unlink1") ? $this->getMessage("link.unlink1")
-                            . $xboxIGN : "Account " . $xboxIGN . " unlinked!";
-                        $line2 = $this->getMessage("link.unlink2") ? $this->getMessage("link.unlink2")
-                            . $currentIGN : "Login from now on with your regular password for $currentIGN";
-                    }else{
                         $line1 = $this->getMessage("link.unlink1") ? $this->getMessage("link.unlink1")
                             . $currentIGN : "Account " . $currentIGN . " unlinked!";
                         $line2 = $this->getMessage("link.unlink2") ? $this->getMessage("link.unlink2")
                             . $xboxIGN : "Login from now on with your regular password for $xboxIGN";
-                    }
                     $message = TextFormat::GREEN . $line1 . "\n" . TextFormat::RED . $line2;
                     $sender->sendMessage($message);
                 }else{
