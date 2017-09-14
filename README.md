@@ -4,7 +4,6 @@
 
 #### IMPORTANT
 You no longer need to set "hack login" and "hack register" perms with SimpleAuthHelper.
-ACCOUNT MAPPING WITH /LINK REQUIRES A PATCHED VERSION OF PMMP POCKETMINE 1.7dev (see below)
 You must also update the database if you use MySQL or SQLite:
 
 MySQL:
@@ -143,17 +142,5 @@ All methods are available through the main plugin object
 
 You can register an instantiated object that implements SimpleAuth\provider\DataProvider to the plugin using the _setDataProvider()_ method
 
-### LINKING ACCOUNTS
-
-You need to add to Player.php, after the function getName() for example:
-
-    /**
-     * Gets the username
-     * @param string $username
-     */
-     
-    public function setName(string $username) {
-        $this->username = $username;
-    }
 
     

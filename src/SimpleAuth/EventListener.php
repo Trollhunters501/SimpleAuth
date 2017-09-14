@@ -23,6 +23,7 @@ use pocketmine\event\inventory\InventoryOpenEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -33,6 +34,7 @@ use pocketmine\event\player\PlayerPreLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\Player;
 use pocketmine\Server;
 
@@ -80,28 +82,37 @@ class EventListener implements Listener{
                 } //if other non logged in players are there leave it to the default behaviour
             }
         }
-        if(!$this->plugin->getConfig()->get("allowLinking")){
-            return true;
-        }
-        $linkedPlayerName = $this->plugin->getDataProvider()->getLinked($event->getPlayer()->getName());
-        if(isset($linkedPlayerName)){
-            $pmdata = $this->plugin->getDataProvider()->getPlayerData($linkedPlayerName);
-            if(isset($pmdata)){
-                $player = $event->getPlayer();
-                $player->namedtag = Server::getInstance()->getOfflinePlayerData($linkedPlayerName);
-                if(!isset($player->namedtag->NameTag)){
-                    $player->namedtag->NameTag = new StringTag("NameTag", $linkedPlayerName);
-                }else{
-                    $player->namedtag["NameTag"] = $linkedPlayerName;
-                }
-                $player->setDisplayName($linkedPlayerName);
-                $player->setNameTag($linkedPlayerName);
-                if(method_exists($player, 'setName')){
-                    $player->setName($linkedPlayerName);
+    }
+
+    /**
+     * @param DataPacketReceiveEvent $event
+     *
+     * @priority HIGHEST
+     */
+
+    public function onDataPacketReceive(DataPacketReceiveEvent $event){
+        if($event->getPacket() instanceof LoginPacket){
+            if(!$this->plugin->getConfig()->get("allowLinking")){
+                return true;
+            }
+            $linkedPlayerName = $this->plugin->getDataProvider()->getLinked($event->getPacket()->username);
+            if(isset($linkedPlayerName)){
+                $pmdata = $this->plugin->getDataProvider()->getPlayerData($linkedPlayerName);
+                if(isset($pmdata)){
+                    $player = $event->getPlayer();
+                    $player->namedtag = Server::getInstance()->getOfflinePlayerData($linkedPlayerName);
+                    if(!isset($player->namedtag->NameTag)){
+                        $player->namedtag->NameTag = new StringTag("NameTag", $linkedPlayerName);
+                    }else{
+                        $player->namedtag["NameTag"] = $linkedPlayerName;
+                    }
+                    $player->setDisplayName($linkedPlayerName);
+                    $player->setNameTag($linkedPlayerName);
+                    $event->getPacket()->username = $linkedPlayerName;
                 }
             }
         }
-
+        return true;
     }
 
     /**
