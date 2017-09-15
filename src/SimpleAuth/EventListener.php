@@ -93,7 +93,7 @@ class EventListener implements Listener{
     public function onDataPacketReceive(DataPacketReceiveEvent $event){
         if($event->getPacket() instanceof LoginPacket){
             if(!$this->plugin->getConfig()->get("allowLinking")){
-                return true;
+                return;
             }
             $linkedPlayerName = $this->plugin->getDataProvider()->getLinked($event->getPacket()->username);
             if(isset($linkedPlayerName)){
