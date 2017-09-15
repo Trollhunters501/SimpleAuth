@@ -112,7 +112,6 @@ class EventListener implements Listener{
                 }
             }
         }
-        return true;
     }
 
     /**
