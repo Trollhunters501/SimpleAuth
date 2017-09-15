@@ -57,6 +57,7 @@ class SimpleAuth extends PluginBase{
     protected $messages = [];
     protected $messageTask = null;
     private $antihack = [];
+    public $notRelogged = [];
     private $allowLinking = false;
     private $purePerms;
 
@@ -431,6 +432,7 @@ class SimpleAuth extends PluginBase{
                     $success = $this->getDataProvider()->linkXBL($sender, $oldPlayer, $oldIGN);
 
                     if($success){
+                        $this->notRelogged[spl_object_hash($sender)] = true;
                         $line1 = $this->getMessage("link.success1") ?? "Accounts Linked! Login again with the password for " . $oldIGN;
                         $line2 = $this->getMessage("link.success2") ?? "Use /unlink to unlink these accounts at any time";
                         $message = TextFormat::GREEN . $line1 . "\n" . TextFormat::RED . $line2;
@@ -461,6 +463,10 @@ class SimpleAuth extends PluginBase{
                 $xboxIGN = $this->getDataProvider()->unlinkXBL($sender);
                 if($xboxIGN !== null && $xboxIGN !== ""){
                     $currentIGN = $sender->getName();
+                    if (isset($this->notRelogged[spl_object_hash($sender)])){
+                        $currentIGN = $xboxIGN;
+                        $xboxIGN = $sender->getName();
+                    }
                         $line1 = $this->getMessage("link.unlink1") ? $this->getMessage("link.unlink1")
                             . $currentIGN : "Account " . $currentIGN . " unlinked!";
                         $line2 = $this->getMessage("link.unlink2") ? $this->getMessage("link.unlink2")

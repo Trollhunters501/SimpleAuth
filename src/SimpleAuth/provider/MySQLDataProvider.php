@@ -155,22 +155,16 @@ class MySQLDataProvider implements DataProvider{
 
     public function unlinkXBL(Player $player){
         $xblIGN = $this->getLinked($player->getName());
-        $pmIGN = $this->getLinked($xblIGN);
-        if(!isset($xblIGN)){
-            return null;
-        }
         $xbldata = $this->getPlayerData($xblIGN);
-        if(isset($xblIGN) && isset($xbldata)){
+        if(isset($xbldata)){
             $xbldata["linkedign"] = "";
             $this->savePlayer($xblIGN, $xbldata);
         }
-        if(isset($pmIGN)){
-            $pmdata = $this->getPlayerData($pmIGN);
+            $pmdata = $this->getPlayerData($player->getName());
             if(isset($pmdata)){
                 $pmdata["linkedign"] = "";
-                $this->savePlayer($pmIGN, $pmdata);
+                $this->savePlayer($player->getName(), $pmdata);
             }
-        }
         return $xblIGN;
     }
 

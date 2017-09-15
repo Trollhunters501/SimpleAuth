@@ -126,18 +126,17 @@ class YAMLDataProvider implements DataProvider{
 
     public function unlinkXBL(Player $player){
         $xblIGN = $this->getLinked($player->getName());
-        $pmIGN = $this->getLinked($xblIGN);
-
         $xbldata = $this->getPlayerData($xblIGN);
-        $pmdata = $this->getPlayerData($pmIGN);
-
-        if(isset($xblIGN) && $xblIGN !== "" && isset($xbldata) && isset($pmdata)){
-            unset($pmdata["linkedign"]);
-            $this->savePlayer($pmIGN, $pmdata);
-            unset($xbldata["linkedign"]);
+        if(isset($xbldata)){
+            $xbldata["linkedign"] = "";
             $this->savePlayer($xblIGN, $xbldata);
-            return $xblIGN;
-        }else return null;
+        }
+        $pmdata = $this->getPlayerData($player->getName());
+        if(isset($pmdata)){
+            $pmdata["linkedign"] = "";
+            $this->savePlayer($player->getName(), $pmdata);
+        }
+        return $xblIGN;
     }
 
     public function isDBLinkingReady() : bool{

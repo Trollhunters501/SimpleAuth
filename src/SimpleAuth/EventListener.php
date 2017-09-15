@@ -227,7 +227,10 @@ class EventListener implements Listener{
      * @priority MONITOR
      */
     public function onPlayerQuit(PlayerQuitEvent $event){
-        $this->plugin->closePlayer($event->getPlayer());
+        if (isset($this->plugin->notRelogged[spl_object_hash($event->getPlayer())])){
+            unset ($this->plugin->notRelogged[spl_object_hash($event->getPlayer())]);
+        }
+            $this->plugin->closePlayer($event->getPlayer());
     }
 
     /**
