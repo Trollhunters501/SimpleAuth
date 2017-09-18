@@ -58,8 +58,10 @@ class MySQLDataProvider implements DataProvider{
 
         fclose($resource);
 
-        $this->linkingready = count($this->database->query("SELECT * FROM information_schema.COLUMNS WHERE COLUMN_NAME = 'linkedign'")->fetch_assoc()) > 0;
-
+        $this->linkingready = $this->database->query("SELECT * FROM information_schema.COLUMNS WHERE COLUMN_NAME = 'linkedign'")->fetch_assoc() !== null ? true : false;
+        if(!$this->linkingready) {
+            $this->plugin->getLogger()->info("Update MySQL Schema to enable /link");
+        }
         $this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new MySQLPingTask($this->plugin, $this->database), 600); //Each 30 seconds
         $this->plugin->getLogger()->info("Connected to MySQL server");
     }
@@ -139,7 +141,7 @@ class MySQLDataProvider implements DataProvider{
     }
 
     public function getLinked(string $name){
-        if(count($this->database->query("SELECT * FROM information_schema.COLUMNS WHERE COLUMN_NAME = 'linkedign'")->fetch_assoc()) === 0){
+        if($this->database->query("SELECT * FROM information_schema.COLUMNS WHERE COLUMN_NAME = 'linkedign'")->fetch_assoc() == null){
             return null;
         }
         $name = trim(strtolower($name));
