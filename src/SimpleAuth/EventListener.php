@@ -55,7 +55,7 @@ class EventListener implements Listener{
     public function onPlayerJoin(PlayerJoinEvent $event){
         if($this->plugin->getConfig()->get("authenticateByLastUniqueId") === true and $event->getPlayer()->hasPermission("simpleauth.lastid")){
             $config = $this->plugin->getDataProvider()->getPlayerData($event->getPlayer()->getName());
-            if($config !== null and hash_equals($config["lastip"] , $event->getPlayer()->getUniqueId()->toString())){
+            if($config !== null and $config["lastip"] !== null && hash_equals($config["lastip"] , $event->getPlayer()->getUniqueId()->toString())){
                 $this->plugin->authenticatePlayer($event->getPlayer());
                 return;
             }
@@ -87,11 +87,11 @@ class EventListener implements Listener{
     /**
      * @param DataPacketReceiveEvent $event
      *
-     * @priority HIGHEST
+     * @priority LOWEST
      */
 
     public function onDataPacketReceive(DataPacketReceiveEvent $event){
-        if($event->getPacket() instanceof LoginPacket){
+        if($event->getPacket() instanceof LoginPacket && $event->getPacket()->username !== null){
             if(!$this->plugin->getConfig()->get("allowLinking")){
                 return;
             }

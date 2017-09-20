@@ -112,7 +112,7 @@ class SimpleAuth extends PluginBase{
         $this->getMessageTask()->removePlayer($player);
 
         unset($this->blockSessions[$player->getAddress() . ":" . strtolower($player->getName())]);
-
+        $this->provider->updatePlayer($player, $player->getUniqueId()->toString(), $player->getAddress(), time(), hash("md5", $player->getSkinData()), null, null);
         return true;
     }
 
@@ -317,7 +317,6 @@ class SimpleAuth extends PluginBase{
 
                     if(hash_equals($data["hash"], $this->hash(strtolower($sender->getName()), $password)) and $this->authenticatePlayer($sender)){
                         // LOGIN SUCCESS!!
-                        $this->provider->updatePlayer($sender, $sender->getUniqueId()->toString(), $sender->getAddress(), time(), hash("md5", $sender->getSkinData()), null, null);
 
                         if(!$this->antihack["enabled"] || !$checkthisrank)
                             return true;
@@ -385,7 +384,6 @@ class SimpleAuth extends PluginBase{
                     }
 
                     if($this->registerPlayer($sender, $password) and $this->authenticatePlayer($sender)){
-                        $this->provider->updatePlayer($sender, $sender->getUniqueId()->toString(), $sender->getAddress(), time(), hash("md5", $sender->getSkinData()), null, null);
                         if(!$this->antihack["enabled"])
                             return true;
 
