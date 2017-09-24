@@ -240,7 +240,7 @@ class SimpleAuth extends PluginBase{
             $algo = explode("_", $split1[1])[1];
             if(hash_equals($split1[2], hash($algo, $password))){
                 $this->getDataProvider()->setPlayerHash($pl, $this->hash(strtolower($pl->getName()), $password));
-                $this->getLogger()->debug("Account of " . $pl->getName() . " has been migrated.");
+                $this->getLogger()->info("Account of " . $pl->getName() . " has been migrated.");
                 if(file_exists($this->getDataFolder() . "progress.yml")){
                     $prconf =  new Config($this->getDataFolder() . "progress.yml");
                     $all = $prconf->get("all", 0);
@@ -248,7 +248,7 @@ class SimpleAuth extends PluginBase{
                     $already += 1;
                     $prconf->set("already", $already);
                     $prconf->save();
-                    $this->getLogger()->debug("$already of $all accounts migrated.");
+                    $this->getLogger()->info("$already of $all accounts migrated.");
                 }
                 $passok = true;
             }else{
