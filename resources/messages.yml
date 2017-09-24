@@ -35,3 +35,5 @@ link:
  unlink2: "Login from now on with the password for "
  unlinkerror: "There was a problem unlinking your accounts"
  notlinkederror: "Your account is not linked"
+ sameign: "You cannot link to the same account you are using"
+ alreadylinked: "You must unlink this account and login again first"
