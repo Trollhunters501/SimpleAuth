@@ -403,16 +403,11 @@ class SimpleAuth extends PluginBase{
 
             case "link":
                 if(!($sender instanceof Player) or count($args) !== 2) return false;
-                if(!method_exists($this->getDataProvider(), "getLinked")){
-                    $sender->sendMessage(TextFormat::AQUA . "Please update SimpleAuth to link IGNs");
-                    return true;
-                }
                 if(!$this->getConfig()->get("allowLinking")){
-                    $sender->sendMessage(TextFormat::AQUA . "Please set 'allowLinking: true' to SimpleAuth config.yml");
+                    $sender->sendMessage(TextFormat::AQUA . "Please add 'allowLinking: true' to SimpleAuth config.yml");
                     return true;
                 }
-                if(($this->getDataProvider() instanceof MySQLDataProvider or $this->getDataProvider() instanceof SQLite3DataProvider) and
-                    !$this->getDataProvider()->isDBLinkingReady()){
+                if(!$this->getDataProvider()->isDBLinkingReady()){
                     $sender->sendMessage(TextFormat::AQUA . "Please update your SimpleAuth DataBase for linking: see config.yml");
                     return true;
                 }
@@ -420,8 +415,12 @@ class SimpleAuth extends PluginBase{
                 $oldPWD = $args[1];
                 $linked = $this->getDataProvider()->getLinked($sender->getName());
                 if(strtolower($sender->getName()) === strtolower($linked)){
-                    $sender->sendMessage(TextFormat::RED . $this->getMessage("link.error") ?? "There was a problem linking the accounts");
-                    return false;
+                    $sender->sendMessage(TextFormat::RED . ($this->getMessage("link.sameign") ?? "You cannot link to the same account you are using"));
+                    return true;
+                }
+                if(($linked !== null and $linked !== "") or isset($this->notRelogged[spl_object_hash($sender)])){
+                    $sender->sendMessage(TextFormat::RED . ($this->getMessage("link.alreadylinked") ?? "You must unlink this account and relog before you link again"));
+                    return true;
                 }
                 $oldPlayer = Server::getInstance()->getOfflinePlayer($oldIGN);
 
@@ -431,32 +430,27 @@ class SimpleAuth extends PluginBase{
 
                     if($success){
                         $this->notRelogged[spl_object_hash($sender)] = true;
-                        $line1 = $this->getMessage("link.success1") ?? "Accounts Linked! Login again with the password for " . $oldIGN;
+                        $line1 = $this->getMessage("link.success1") ?? "Accounts Linked! Login again with the password for ";
                         $line2 = $this->getMessage("link.success2") ?? "Use /unlink to unlink these accounts at any time";
-                        $message = TextFormat::GREEN . $line1 . "\n" . TextFormat::RED . $line2;
+                        $message = TextFormat::GREEN . $line1 . $oldIGN . "\n" . TextFormat::RED . $line2;
                         $sender->sendMessage($message);
                         return true;
                     }
                 }
-                $sender->sendMessage($this->getMessage("link.error") ? TextFormat::RED . $this->getMessage("link.error") : TextFormat::RED . "There was a problem linking the accounts");
+                $sender->sendMessage(TextFormat::RED . ($this->getMessage("link.error") ?? "There was a problem linking the accounts"));
                 return false;
                 break;
 
             case "unlink":
                 if(!($sender instanceof Player)) return false;
-                if(!method_exists($this->getDataProvider(), "unlinkXBL")){
-                    $sender->sendMessage(TextFormat::AQUA . "Please update SimpleAuth to unlink IGNs");
-                    return true;
-                }
                 if(!$this->getConfig()->get("allowLinking")){
                     $sender->sendMessage(TextFormat::AQUA . "Please enable 'allowLinking' in SimpleAuth config.yml");
                     return true;
                 }
                 $linked = $this->getDataProvider()->getLinked($sender->getName());
                 if($linked === null or $linked === ""){
-                    $sender->sendMessage($this->getMessage("link.notlinkederror") ? TextFormat::RED
-                        . $this->getMessage("link.notlinkederror") : TextFormat::RED . "Your account is not linked");
-                    return false;
+                    $sender->sendMessage(TextFormat::RED . ($this->getMessage("link.notlinkederror") ?? "Your account is not linked"));
+                    return true;
                 }
                 $xboxIGN = $this->getDataProvider()->unlinkXBL($sender);
                 if($xboxIGN !== null && $xboxIGN !== ""){
@@ -470,11 +464,11 @@ class SimpleAuth extends PluginBase{
                         $line2 = $this->getMessage("link.unlink2") ? $this->getMessage("link.unlink2")
                             . $xboxIGN : "Login from now on with your regular password for $xboxIGN";
                     $message = TextFormat::GREEN . $line1 . "\n" . TextFormat::RED . $line2;
+                    $this->notRelogged[spl_object_hash($sender)] = true;
                     $sender->sendMessage($message);
                 }else{
-                    $sender->sendMessage($this->getMessage("link.unlinkerror") ? TextFormat::RED
-                        . $this->getMessage("link.unlinkerror") : TextFormat::RED . "There was a problem unlinking your accounts");
-                    return false;
+                    $sender->sendMessage(TextFormat::RED . $this->getMessage("link.unlinkerror") ?? "There was a problem unlinking your accounts");
+                    return true;
                 }
                 return true;
                 break;
