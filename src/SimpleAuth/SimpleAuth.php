@@ -38,6 +38,7 @@ use SimpleAuth\provider\MySQLDataProvider;
 use SimpleAuth\provider\SQLite3DataProvider;
 use SimpleAuth\provider\YAMLDataProvider;
 use SimpleAuth\task\ShowMessageTask;
+use SimpleAuth\utils\ServerAuthMigration;
 
 class SimpleAuth extends PluginBase{
 
@@ -234,7 +235,28 @@ class SimpleAuth extends PluginBase{
         if($data === null){
             return false;
         }
-        $passok = hash_equals($data["hash"], $this->hash(strtolower($pl->getName()), $password));
+        if(substr($data["hash"], 0, 9) === "!migrate_"){
+            $split1 = explode("!", $data["hash"]);
+            $algo = explode("_", $split1[1])[1];
+            if(hash_equals($split1[2], hash($algo, $password))){
+                $this->getDataProvider()->setPlayerHash($pl, $this->hash(strtolower($pl->getName()), $password));
+                $this->getLogger()->debug("Account of " . $pl->getName() . " has been migrated.");
+                if(file_exists($this->getDataFolder() . "progress.yml")){
+                    $prconf =  new Config($this->getDataFolder() . "progress.yml");
+                    $all = $prconf->get("all", 0);
+                    $already = $prconf->get("already", 0);
+                    $already += 1;
+                    $prconf->set("already", $already);
+                    $prconf->save();
+                    $this->getLogger()->debug("$already of $all accounts migrated.");
+                }
+                $passok = true;
+            }else{
+                $passok = false;
+            }
+        }else{
+            $passok = hash_equals($data["hash"], $this->hash(strtolower($pl->getName()), $password));
+        }
         return $passok;
     }
 
@@ -315,7 +337,7 @@ class SimpleAuth extends PluginBase{
                         }
                     }
 
-                    if(hash_equals($data["hash"], $this->hash(strtolower($sender->getName()), $password)) and $this->authenticatePlayer($sender)){
+                    if($this->checkPassword($sender, $password) and $this->authenticatePlayer($sender)){
                         // LOGIN SUCCESS!!
 
                         if(!$this->antihack["enabled"] || !$checkthisrank)
@@ -478,7 +500,21 @@ class SimpleAuth extends PluginBase{
                 }
                 return true;
                 break;
-
+            case "migrate":
+                if(!isset($args[1])) return false;
+                if($sender instanceof Player){
+                    $sender->sendMessage(TextFormat::RED . "Please use this command on console!");
+                    return true;
+                }
+                if(strtolower($args[0]) !== "serverauth"){
+                    $sender->sendMessage(TextFormat::RED . "Currently only ServerAuth is supported!");
+                    return true;
+                }
+                $sender->sendMessage("Starting migration process...");
+                $mig = new ServerAuthMigration($this);
+                $sender->sendMessage($mig->migrateFromYML($args[1], $args[2] ?? true));
+                return true;
+                break;
         }
 
         return false;

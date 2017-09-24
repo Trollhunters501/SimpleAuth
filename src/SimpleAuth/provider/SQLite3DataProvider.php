@@ -162,6 +162,15 @@ class SQLite3DataProvider implements DataProvider{
         return true;
     }
 
+    public function setPlayerHash(IPlayer $player, string $hash): bool{
+        $name = trim(strtolower($player->getName()));
+        $prepare = $this->database->prepare("UPDATE players SET hash = :hash WHERE name = :name");
+        $prepare->bindValue(":name", $name, SQLITE3_TEXT);
+        $prepare->bindValue(":hash", $hash, SQLITE3_TEXT);
+        $prepare->execute();
+        return true;
+    }
+
     public function getLinked(string $name){
         $name = trim(strtolower($name));
         $prepare = $this->database->prepare("SELECT linkedign FROM players WHERE name = :name");

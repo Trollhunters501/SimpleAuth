@@ -140,6 +140,12 @@ class MySQLDataProvider implements DataProvider{
         return true;
     }
 
+    public function setPlayerHash(IPlayer $player, string $hash): bool{
+        $name = trim(strtolower($player->getName()));
+        $this->database->query("UPDATE simpleauth_players SET hash = '" . $this->database->escape_string($hash) . "' WHERE name = '" . $this->database->escape_string($name) . "'");
+        return true;
+    }
+
     public function getLinked(string $name){
         if($this->database->query("SELECT * FROM information_schema.COLUMNS WHERE COLUMN_NAME = 'linkedign'")->fetch_assoc() == null){
             return null;
