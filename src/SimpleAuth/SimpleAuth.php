@@ -353,7 +353,7 @@ class SimpleAuth extends PluginBase{
                     $player = $this->getServer()->getPlayer($args[0]);
 
                     if($player instanceof Player){
-                        $this->updatePin($sender, 0);
+                        $this->updatePin($player, 0);
                         $sender->sendMessage(TEXTFORMAT::LIGHT_PURPLE . $this->antihack["pinreset"] . $player->getName());
                         return true;
                     }
@@ -361,7 +361,7 @@ class SimpleAuth extends PluginBase{
                     $player = $this->getServer()->getOfflinePlayer($args[0]);
 
                     if($player instanceof OfflinePlayer){
-                        $this->updatePin($sender, 0);
+                        $this->updatePin($player, 0);
                         $sender->sendMessage(TEXTFORMAT::LIGHT_PURPLE . $this->antihack["pinreset"] . $player->getName());
                         return true;
                     }
