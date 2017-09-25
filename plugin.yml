@@ -25,7 +25,7 @@ commands:
   usage: "/unlink"
   permission: simpleauth.command.unlink
  migrate:
-  descirption: "Migrates passwords from another auth plugin"
+  description: "Migrates passwords from another auth plugin"
   usage: "/migrate <plugin> <hash algorithm> <save progress to file (true|false)>"
   permission: simpleauth.management.migrate
 
@@ -59,7 +59,7 @@ permissions:
      simpleauth.command.unlink:
       description: "Allows unlinking an account"
       default: true
-   simplauth.management:
+   simpleauth.management:
     description: "Management commands"
     default: op
     children:
