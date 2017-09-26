@@ -56,6 +56,10 @@ class DummyDataProvider implements DataProvider{
         return false;
     }
 
+    public function setPlayerHash(IPlayer $player, string $hash): bool{
+        return false;
+    }
+
     public function getLinked(string $name){
 
     }

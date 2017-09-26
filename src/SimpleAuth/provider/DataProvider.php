@@ -71,6 +71,13 @@ interface DataProvider{
     public function updatePlayer(IPlayer $player, string $lastIp = null, string $ip = null, int $loginDate = null, string $skinhash = null, int $pin = null, string $linkedign = null) : bool;
 
     /**
+     * @param IPlayer $player
+     * @param string  $hash
+     * @return bool
+     */
+    public function setPlayerHash(IPlayer $player, string $hash): bool;
+
+    /**
      * @param string $name
      *
      * @return string or null

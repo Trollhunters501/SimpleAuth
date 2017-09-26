@@ -109,6 +109,13 @@ class YAMLDataProvider implements DataProvider{
         return true;
     }
 
+    public function setPlayerHash(IPlayer $player, string $hash): bool{
+        $data = $this->getPlayerData($player->getName());
+        $data["hash"] = $hash;
+        $this->savePlayer($player->getName(), $data);
+        return true;
+    }
+
     public function getLinked(string $name){
         $name = trim(strtolower($name));
         $data = $this->getPlayerData($name);
