@@ -44,8 +44,8 @@ class ShowMessageTask extends PluginTask{
 	}
 
 	public function removePlayer(Player $player){
-	if (null !== $player->getUniqueId()){
-		unset($this->playerList[$player->getUniqueId()->toString()]);
+		if(null !== $player->getUniqueId()){
+			unset($this->playerList[$player->getUniqueId()->toString()]);
 		}
 	}
 
@@ -56,7 +56,7 @@ class ShowMessageTask extends PluginTask{
 		}
 
 		foreach($this->playerList as $player){
-			if($player==null){
+			if($player == null){
 				continue;
 			}
 			$player->sendPopup(TextFormat::ITALIC . TextFormat::GRAY . $this->getPlugin()->getMessage("join.popup"));
