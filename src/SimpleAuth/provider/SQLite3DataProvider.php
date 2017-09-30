@@ -57,7 +57,9 @@ class SQLite3DataProvider implements DataProvider{
 		$name = trim(strtolower($name));
 		$prepare = $this->database->prepare("SELECT * FROM players WHERE name = :name");
 		$prepare->bindValue(":name", $name, SQLITE3_TEXT);
+
 		$result = $prepare->execute();
+
 		if($result instanceof \SQLite3Result){
 			$data = $result->fetchArray(SQLITE3_ASSOC);
 			$result->finalize();
@@ -68,6 +70,7 @@ class SQLite3DataProvider implements DataProvider{
 			}
 		}
 		$prepare->close();
+
 		return null;
 	}
 
@@ -116,7 +119,6 @@ class SQLite3DataProvider implements DataProvider{
 
 	public function updatePlayer(IPlayer $player, string $lastIP = null, string $ip = null, int $loginDate = null, string $skinhash = null, int $pin = null, string $linkedign = null) : bool{
 		$name = trim(strtolower($player->getName()));
-
 		if($lastIP !== null){
 			$prepare = $this->database->prepare("UPDATE players SET lastip = :lastip WHERE name = :name");
 			$prepare->bindValue(":name", $name, SQLITE3_TEXT);

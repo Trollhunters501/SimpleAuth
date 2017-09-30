@@ -371,7 +371,6 @@ class SimpleAuth extends PluginBase{
 				break;
 			case "register":
 				if($sender instanceof Player){
-
 					if($this->isPlayerRegistered($sender)){
 						$sender->sendMessage(TextFormat::RED . $this->getMessage("register.error.registered") ?? "This account is already registered.");
 						return true;

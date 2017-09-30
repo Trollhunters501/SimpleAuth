@@ -55,7 +55,6 @@ class MySQLDataProvider implements DataProvider{
 
 		$resource = $this->plugin->getResource("mysql.sql");
 		$this->database->query(stream_get_contents($resource));
-
 		fclose($resource);
 
 		$this->linkingready = $this->database->query("SELECT * FROM information_schema.COLUMNS WHERE COLUMN_NAME = 'linkedign'")->fetch_assoc() !== null ? true : false;
@@ -114,7 +113,6 @@ class MySQLDataProvider implements DataProvider{
 	}
 
 	public function updatePlayer(IPlayer $player, string $lastIp = null, string $ip = null, int $loginDate = null, string $skinhash = null, int $pin = null, string $linkedign = null) : bool{
-
 		$name = trim(strtolower($player->getName()));
 		if($lastIp !== null){
 			$this->database->query("UPDATE simpleauth_players SET lastip = '" . $this->database->escape_string($lastIp) . "' WHERE name = '" . $this->database->escape_string($name) . "'");
