@@ -112,7 +112,7 @@ class SimpleAuth extends PluginBase{
         $this->getMessageTask()->removePlayer($player);
 
         unset($this->blockSessions[$player->getAddress() . ":" . strtolower($player->getName())]);
-        $this->provider->updatePlayer($player, $player->getUniqueId()->toString(), $player->getAddress(), time(), hash("md5", $player->getSkinData()), null, null);
+        $this->provider->updatePlayer($player, $player->getUniqueId()->toString(), $player->getAddress(), time(), hash("md5", $player->getSkin()->getSkinData()), null, null);
         return true;
     }
 
@@ -292,13 +292,13 @@ class SimpleAuth extends PluginBase{
                         $concordance++;
                     if($sender->getPlayer()->getUniqueId()->toString() === $data["lastip"])
                         $concordance++;
-                    if(hash("md5", $sender->getSkinData()) == $data["skinhash"])
+                    if(hash("md5", $sender->getSkin()->getSkinData()) == $data["skinhash"])
                         $concordance++;
 
                     if($checkthisrank && isset($data["pin"]) && ($this->antihack["enabled"])){
 
                         $this->getLogger()->debug("Current IP: " . $sender->getAddress() . " - Saved IP: " . $data["ip"] . "\n");
-                        $this->getLogger()->debug("Current SKIN: " . (hash("md5", $sender->getSkinData())) . " - Saved Skin: " . $data["skinhash"] . "\n");
+                        $this->getLogger()->debug("Current SKIN: " . (hash("md5", $sender->getSkin()->getSkinData())) . " - Saved Skin: " . $data["skinhash"] . "\n");
                         $this->getLogger()->debug("Current UUID: " . $sender->getPlayer()->getUniqueId()->toString() . " - Saved UUID: " . $data["lastip"] . "\n");
 
                         if($concordance < ($this->antihack["threat"]) && (!(isset($args[1]) && ($data["pin"] == $args[1])))){
