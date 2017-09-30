@@ -18,6 +18,8 @@
 namespace SimpleAuth\provider;
 
 use pocketmine\IPlayer;
+use pocketmine\OfflinePlayer;
+use pocketmine\Player;
 use pocketmine\utils\Config;
 use SimpleAuth\SimpleAuth;
 
@@ -33,8 +35,8 @@ class YAMLDataProvider implements DataProvider{
 		}
 	}
 
-	public function getPlayer(IPlayer $player){
-		$name = trim(strtolower($player->getName()));
+	public function getPlayerData(string $name){
+		$name = trim(strtolower($name));
 		if($name === ""){
 			return null;
 		}
@@ -64,26 +66,21 @@ class YAMLDataProvider implements DataProvider{
 		$data = new Config($this->plugin->getDataFolder() . "players/" . $name{0} . "/$name.yml", Config::YAML);
 		$data->set("registerdate", time());
 		$data->set("logindate", time());
-		$data->set("ip", $player->getPlayer()->getAddress());
 		$data->set("hash", $hash);
-		$data->set("cid", $player->getPlayer()->getClientId());
-		$data->set("skinhash", hash("md5", $player->getPlayer()->getSkin()->getSkinData()()));
-		$data->set("pin", null);
-
 		$data->save();
 
 		return $data->getAll();
 	}
 
-	public function savePlayer(IPlayer $player, array $config){
-		$name = trim(strtolower($player->getName()));
+	public function savePlayer(string $name, array $config){
+		$name = trim(strtolower($name));
 		$data = new Config($this->plugin->getDataFolder() . "players/" . $name{0} . "/$name.yml", Config::YAML);
 		$data->setAll($config);
 		$data->save();
 	}
 
-	public function updatePlayer(IPlayer $player, $lastIP = null, $ip = null, $loginDate = null, $cid = null, $skinhash = null, $pin = null){
-		$data = $this->getPlayer($player);
+	public function updatePlayer(IPlayer $player, string $lastIP = null, string $ip = null, int $loginDate = null, string $skinhash = null, int $pin = null, string $linkedign = null) : bool{
+		$data = $this->getPlayerData($player->getName());
 		if($data !== null){
 			if($ip !== null){
 				$data["ip"] = $ip;
@@ -94,21 +91,56 @@ class YAMLDataProvider implements DataProvider{
 			if($loginDate !== null){
 				$data["logindate"] = $loginDate;
 			}
-			if($cid !== null){
-				$data["cid"] = $cid;
-			}
 			if($skinhash !== null){
 				$data["skinhash"] = $skinhash;
 			}
 			if($pin !== null){
 				$data["pin"] = $pin;
 			}
+			if($linkedign !== null){
+				$data["linkedign"] = $linkedign;
+			}
 			if(isset($pin) && $pin === 0){
 				unset($data["pin"]);
 			}
 
-			$this->savePlayer($player, $data);
+			$this->savePlayer($player->getName(), $data);
 		}
+		return true;
+	}
+
+	public function getLinked(string $name){
+		$name = trim(strtolower($name));
+		$data = $this->getPlayerData($name);
+		if(isset($data["linkedign"]) && $data["linkedign"] !== ""){
+			return $data["linkedign"];
+		}
+		return null;
+	}
+
+	public function linkXBL(Player $sender, OfflinePlayer $oldPlayer, string $oldIGN){
+		$success = $this->updatePlayer($sender, null, null, null, null, null, $oldIGN);
+		$success = $success && $this->updatePlayer($oldPlayer, null, null, null, null, null, $sender->getName());
+		return $success;
+	}
+
+	public function unlinkXBL(Player $player){
+		$xblIGN = $this->getLinked($player->getName());
+		$xbldata = $this->getPlayerData($xblIGN);
+		if(isset($xbldata)){
+			$xbldata["linkedign"] = "";
+			$this->savePlayer($xblIGN, $xbldata);
+		}
+		$pmdata = $this->getPlayerData($player->getName());
+		if(isset($pmdata)){
+			$pmdata["linkedign"] = "";
+			$this->savePlayer($player->getName(), $pmdata);
+		}
+		return $xblIGN;
+	}
+
+	public function isDBLinkingReady() : bool{
+		return true;
 	}
 
 	public function close(){

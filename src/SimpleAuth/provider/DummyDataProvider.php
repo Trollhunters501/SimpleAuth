@@ -18,6 +18,8 @@
 namespace SimpleAuth\provider;
 
 use pocketmine\IPlayer;
+use pocketmine\Player;
+use pocketmine\OfflinePlayer;
 use pocketmine\utils\Config;
 use SimpleAuth\SimpleAuth;
 
@@ -30,7 +32,7 @@ class DummyDataProvider implements DataProvider{
 		$this->plugin = $plugin;
 	}
 
-	public function getPlayer(IPlayer $player){
+	public function getPlayerData(string $player){
 		return null;
 	}
 
@@ -46,12 +48,28 @@ class DummyDataProvider implements DataProvider{
 
 	}
 
-	public function savePlayer(IPlayer $player, array $config){
+	public function savePlayer(string $name, array $config){
 
 	}
 
-	public function updatePlayer(IPlayer $player, $lastIP = null, $ip = null, $loginDate = null, $cid = null, $skinhash = null, $pin = null){
+	public function updatePlayer(IPlayer $player, string $lastIP = null, string $ip = null, int $loginDate = null, string $skinhash = null, int $pin = null, string $linkedIGN = null) : bool{
+		return false;
+	}
 
+	public function getLinked(string $name){
+
+	}
+
+	public function linkXBL(Player $sender, OfflinePlayer $oldPlayer, string $oldIGN){
+
+	}
+
+	public function unlinkXBL(Player $player){
+
+	}
+
+	public function isDBLinkingReady() : bool{
+		return false;
 	}
 
 	public function close(){
