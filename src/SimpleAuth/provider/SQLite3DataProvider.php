@@ -81,9 +81,9 @@ class SQLite3DataProvider implements DataProvider{
             "logindate" => time(),
             "lastip" => null,
             "hash" => $hash,
-            "ip" => $player->getAddress(),
-            "cid" => $player->getClientId(),
-            "skinhash" => hash("md5", $player->getSkinData()),
+            "ip" => $player->getPlayer()->getAddress(),
+            "cid" => $player->getPlayer()->getClientId(),
+            "skinhash" => hash("md5", $player->getPlayer()->getSkin()->getSkinData()()),
             "pin" => null
         ];
         $prepare = $this->database->prepare("INSERT INTO players (name, registerdate, logindate, lastip, hash, ip, cid, skinhash, pin) VALUES (:name, :registerdate, :logindate, :lastip, :hash, :ip, :cid, :skinhash, :pin)");

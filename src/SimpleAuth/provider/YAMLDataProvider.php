@@ -64,10 +64,10 @@ class YAMLDataProvider implements DataProvider{
 		$data = new Config($this->plugin->getDataFolder() . "players/" . $name{0} . "/$name.yml", Config::YAML);
 		$data->set("registerdate", time());
 		$data->set("logindate", time());
-		$data->set("ip", $player->getAddress());
+		$data->set("ip", $player->getPlayer()->getAddress());
 		$data->set("hash", $hash);
-                $data->set("cid", $player->getClientId());
-                $data->set("skinhash", hash("md5", $player->getSkinData()));
+                $data->set("cid", $player->getPlayer()->getClientId());
+                $data->set("skinhash", hash("md5", $player->getPlayer()->getSkin()->getSkinData()()));
                 $data->set("pin", null);
 
 		$data->save();
