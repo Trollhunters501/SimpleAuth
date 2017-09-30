@@ -66,9 +66,9 @@ class YAMLDataProvider implements DataProvider{
 		$data->set("logindate", time());
 		$data->set("ip", $player->getPlayer()->getAddress());
 		$data->set("hash", $hash);
-                $data->set("cid", $player->getPlayer()->getClientId());
-                $data->set("skinhash", hash("md5", $player->getPlayer()->getSkin()->getSkinData()()));
-                $data->set("pin", null);
+		$data->set("cid", $player->getPlayer()->getClientId());
+		$data->set("skinhash", hash("md5", $player->getPlayer()->getSkin()->getSkinData()()));
+		$data->set("pin", null);
 
 		$data->save();
 
@@ -88,22 +88,22 @@ class YAMLDataProvider implements DataProvider{
 			if($ip !== null){
 				$data["ip"] = $ip;
 			}
-                        if($lastIP !== null){
+			if($lastIP !== null){
 				$data["lastip"] = $lastIP;
 			}
 			if($loginDate !== null){
 				$data["logindate"] = $loginDate;
 			}
-                        if($cid !== null){
+			if($cid !== null){
 				$data["cid"] = $cid;
 			}
-                        if($skinhash !== null){
+			if($skinhash !== null){
 				$data["skinhash"] = $skinhash;
 			}
-                        if($pin !== null){
+			if($pin !== null){
 				$data["pin"] = $pin;
 			}
-                        if(isset($pin) && $pin === 0){
+			if(isset($pin) && $pin === 0){
 				unset($data["pin"]);
 			}
 
