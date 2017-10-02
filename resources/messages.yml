@@ -37,3 +37,4 @@ link:
  notlinkederror: "Your account is not linked"
  sameign: "You cannot link to the same account you are using"
  alreadylinked: "You must unlink this account and login again first"
+ otheralreadylinked: "That account is already linked to "

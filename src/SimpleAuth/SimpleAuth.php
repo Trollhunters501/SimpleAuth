@@ -418,7 +418,12 @@ class SimpleAuth extends PluginBase{
 					return true;
 				}
 				if(($linked !== null and $linked !== "") or isset($this->notRelogged[spl_object_hash($sender)])){
-					$sender->sendMessage(TextFormat::RED . ($this->getMessage("link.alreadylinked") ?? "You must unlink this account and relog before you link again"));
+					$sender->sendMessage(TextFormat::RED . ($this->getMessage("link.selfalreadylinked") ?? "You must unlink this account and relog before you link again"));
+					return true;
+				}
+				$oldLinked = $this->getDataProvider()->getLinked($oldIGN);
+				if($oldLinked !== null and $oldLinked !== ""){
+					$sender->sendMessage(TextFormat::RED . ($this->getMessage("link.otheralreadylinked") ?? "That account is already linked to ") . $oldLinked);
 					return true;
 				}
 				$oldPlayer = Server::getInstance()->getOfflinePlayer($oldIGN);
