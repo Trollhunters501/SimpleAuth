@@ -79,7 +79,7 @@ class YAMLDataProvider implements DataProvider{
 		$data->save();
 	}
 
-	public function updatePlayer(IPlayer $player, string $lastIP = null, string $ip = null, int $loginDate = null, string $skinhash = null, int $pin = null, string $linkedign = null) : bool{
+	public function updatePlayer(IPlayer $player, string $lastIP = null, string $ip = null, int $loginDate = null, string $linkedign = null) : bool{
 		$data = $this->getPlayerData($player->getName());
 		if($data !== null){
 			if($ip !== null){
@@ -91,17 +91,8 @@ class YAMLDataProvider implements DataProvider{
 			if($loginDate !== null){
 				$data["logindate"] = $loginDate;
 			}
-			if($skinhash !== null){
-				$data["skinhash"] = $skinhash;
-			}
-			if($pin !== null){
-				$data["pin"] = $pin;
-			}
 			if($linkedign !== null){
 				$data["linkedign"] = $linkedign;
-			}
-			if(isset($pin) && $pin === 0){
-				unset($data["pin"]);
 			}
 
 			$this->savePlayer($player->getName(), $data);
@@ -119,8 +110,8 @@ class YAMLDataProvider implements DataProvider{
 	}
 
 	public function linkXBL(Player $sender, OfflinePlayer $oldPlayer, string $oldIGN){
-		$success = $this->updatePlayer($sender, null, null, null, null, null, $oldIGN);
-		$success = $success && $this->updatePlayer($oldPlayer, null, null, null, null, null, $sender->getName());
+		$success = $this->updatePlayer($sender, null, null, null, $oldIGN);
+		$success = $success && $this->updatePlayer($oldPlayer, null, null, null, $sender->getName());
 		return $success;
 	}
 

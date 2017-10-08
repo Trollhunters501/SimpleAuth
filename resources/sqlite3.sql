@@ -5,6 +5,5 @@ CREATE TABLE players (
   logindate INTEGER,
   lastip TEXT,
   ip TEXT,
-  skinhash TEXT,
-  pin INTEGER
+  linkedign TEXT
 );

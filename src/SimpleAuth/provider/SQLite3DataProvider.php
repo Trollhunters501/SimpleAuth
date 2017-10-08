@@ -104,7 +104,7 @@ class SQLite3DataProvider implements DataProvider{
 
 	public function savePlayer(string $name, array $config){
 		$name = trim(strtolower($name));
-		$prepare = $this->database->prepare("UPDATE players SET registerdate = :registerdate, logindate = :logindate, lastip = :lastip, hash = :hash, ip = :ip, skinhash = :skinhash, pin = :pin, linkedign = :linkedign WHERE name = :name");
+		$prepare = $this->database->prepare("UPDATE players SET registerdate = :registerdate, logindate = :logindate, lastip = :lastip, hash = :hash, ip = :ip, linkedign = :linkedign WHERE name = :name");
 		$prepare->bindValue(":name", $name, SQLITE3_TEXT);
 		$prepare->bindValue(":registerdate", $config["registerdate"], SQLITE3_INTEGER);
 		$prepare->bindValue(":logindate", $config["logindate"], SQLITE3_INTEGER);
@@ -112,12 +112,10 @@ class SQLite3DataProvider implements DataProvider{
 		$prepare->bindValue(":hash", $config["hash"], SQLITE3_TEXT);
 		$prepare->bindValue(":ip", $config["ip"], SQLITE3_TEXT);
 		$prepare->bindValue(":linkedign", $config["linkedign"], SQLITE3_TEXT);
-		$prepare->bindValue(":skinhash", $config["skinhash"], SQLITE3_TEXT);
-		$prepare->bindValue(":pin", $config["pin"], SQLITE3_INTEGER);
 		$prepare->execute();
 	}
 
-	public function updatePlayer(IPlayer $player, string $lastIP = null, string $ip = null, int $loginDate = null, string $skinhash = null, int $pin = null, string $linkedign = null) : bool{
+	public function updatePlayer(IPlayer $player, string $lastIP = null, string $ip = null, int $loginDate = null, string $linkedign = null) : bool{
 		$name = trim(strtolower($player->getName()));
 		if($lastIP !== null){
 			$prepare = $this->database->prepare("UPDATE players SET lastip = :lastip WHERE name = :name");
@@ -137,28 +135,10 @@ class SQLite3DataProvider implements DataProvider{
 			$prepare->bindValue(":ip", $ip, SQLITE3_TEXT);
 			$prepare->execute();
 		}
-		if($skinhash !== null){
-			$prepare = $this->database->prepare("UPDATE players SET skinhash = :skinhash WHERE name = :name");
-			$prepare->bindValue(":name", $name, SQLITE3_TEXT);
-			$prepare->bindValue(":skinhash", $skinhash, SQLITE3_TEXT);
-			$prepare->execute();
-		}
-		if($pin !== null){
-			$prepare = $this->database->prepare("UPDATE players SET pin = :pin WHERE name = :name");
-			$prepare->bindValue(":name", $name, SQLITE3_TEXT);
-			$prepare->bindValue(":pin", $pin, SQLITE3_INTEGER);
-			$prepare->execute();
-		}
 		if($linkedign !== null){
 			$prepare = $this->database->prepare("UPDATE players SET linkedign = :linkedign WHERE name = :name");
 			$prepare->bindValue(":name", $name, SQLITE3_TEXT);
 			$prepare->bindValue(":linkedign", $linkedign, SQLITE3_TEXT);
-			$prepare->execute();
-		}
-		if($pin === 0){
-			$prepare = $this->database->prepare("UPDATE players SET pin = :pin WHERE name = :name");
-			$prepare->bindValue(":name", $name, SQLITE3_TEXT);
-			$prepare->bindValue(":pin", NULL, SQLITE3_INTEGER);
 			$prepare->execute();
 		}
 		return true;
@@ -179,8 +159,8 @@ class SQLite3DataProvider implements DataProvider{
 	}
 
 	public function linkXBL(Player $sender, OfflinePlayer $oldPlayer, string $oldIGN){
-		$success = $this->updatePlayer($sender, null, null, null, null, null, $oldIGN);
-		$success = $success && $this->updatePlayer($oldPlayer, null, null, null, null, null, $sender->getName());
+		$success = $this->updatePlayer($sender, null, null, null, $oldIGN);
+		$success = $success && $this->updatePlayer($oldPlayer, null, null, null, $sender->getName());
 		return $success;
 	}
 
