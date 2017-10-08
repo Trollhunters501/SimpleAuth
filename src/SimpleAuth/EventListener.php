@@ -96,12 +96,13 @@ class EventListener implements Listener{
 				return;
 			}
 			$linkedPlayerName = $this->plugin->getDataProvider()->getLinked($event->getPacket()->username);
-			if(isset($linkedPlayerName)){
+			if($linkedPlayerName !== null && $linkedPlayerName !== ""){
 				$pmdata = $this->plugin->getDataProvider()->getPlayerData($linkedPlayerName);
-				if(isset($pmdata)){
+				if($pmdata !== null){
 					$player = $event->getPlayer();
 					$player->namedtag = Server::getInstance()->getOfflinePlayerData($linkedPlayerName);
-					if(!isset($player->namedtag->NameTag)){
+					$tagname = $player->namedtag->NameTag;
+					if($tagname !== null){
 						$player->namedtag->NameTag = new StringTag("NameTag", $linkedPlayerName);
 					}else{
 						$player->namedtag["NameTag"] = $linkedPlayerName;
