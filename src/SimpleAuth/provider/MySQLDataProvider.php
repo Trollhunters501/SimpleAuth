@@ -109,10 +109,10 @@ class MySQLDataProvider implements DataProvider{
 
 	public function savePlayer(string $name, array $config){
 		$name = trim(strtolower($name));
-		$this->database->query("UPDATE simpleauth_players SET ip = '" . $this->database->escape_string($config["ip"]) . "', skinhash = '" . $this->database->escape_string($config["skinhash"]) . "', pin = " . intval($config["pin"]) . ", registerdate = " . intval($config["registerdate"]) . ", logindate = " . intval($config["logindate"]) . ", lastip = '" . $this->database->escape_string($config["lastip"]) . "', hash = '" . $this->database->escape_string($config["hash"]) . "', linkedign = '" . $this->database->escape_string($config["linkedign"]) . "' WHERE name = '" . $this->database->escape_string($name) . "'");
+		$this->database->query("UPDATE simpleauth_players SET ip = '" . $this->database->escape_string($config["ip"]) . "', registerdate = " . (int) $config["registerdate"] . ", logindate = " . (int) $config["logindate"] . ", lastip = '" . $this->database->escape_string($config["lastip"]) . "', hash = '" . $this->database->escape_string($config["hash"]) . "', linkedign = '" . $this->database->escape_string($config["linkedign"]) . "' WHERE name = '" . $this->database->escape_string($name) . "'");
 	}
 
-	public function updatePlayer(IPlayer $player, string $lastIp = null, string $ip = null, int $loginDate = null, string $skinhash = null, int $pin = null, string $linkedign = null) : bool{
+	public function updatePlayer(IPlayer $player, string $lastIp = null, string $ip = null, int $loginDate = null, string $linkedign = null) : bool{
 		$name = trim(strtolower($player->getName()));
 		if($lastIp !== null){
 			$this->database->query("UPDATE simpleauth_players SET lastip = '" . $this->database->escape_string($lastIp) . "' WHERE name = '" . $this->database->escape_string($name) . "'");
@@ -123,17 +123,8 @@ class MySQLDataProvider implements DataProvider{
 		if($ip !== null){
 			$this->database->query("UPDATE simpleauth_players SET ip = '" . $this->database->escape_string($ip) . "' WHERE name = '" . $this->database->escape_string($name) . "'");
 		}
-		if($skinhash !== null){
-			$this->database->query("UPDATE simpleauth_players SET skinhash = '" . $this->database->escape_string($skinhash) . "' WHERE name = '" . $this->database->escape_string($name) . "'");
-		}
-		if($pin !== null){
-			$this->database->query("UPDATE simpleauth_players SET pin = " . intval($pin) . " WHERE name = '" . $this->database->escape_string($name) . "'");
-		}
 		if($linkedign !== null){
 			$this->database->query("UPDATE simpleauth_players SET linkedign ='" . $this->database->escape_string($linkedign) . "' WHERE name = '" . $this->database->escape_string($name) . "'");
-		}
-		if(isset($pin) && (intval($pin) === 0)){
-			$this->database->query("UPDATE simpleauth_players SET pin = NULL WHERE name = '" . $this->database->escape_string($name) . "'");
 		}
 		return true;
 	}
@@ -148,8 +139,8 @@ class MySQLDataProvider implements DataProvider{
 	}
 
 	public function linkXBL(Player $sender, OfflinePlayer $oldPlayer, string $oldIGN){
-		$success = $this->updatePlayer($sender, null, null, null, null, null, $oldIGN);
-		$success = $success && $this->updatePlayer($oldPlayer, null, null, null, null, null, $sender->getName());
+		$success = $this->updatePlayer($sender, null, null, null, $oldIGN);
+		$success = $success && $this->updatePlayer($oldPlayer, null, null, null, $sender->getName());
 		return $success;
 	}
 

@@ -63,12 +63,10 @@ interface DataProvider{
 	 * @param string  $lastIp
 	 * @param string  $ip
 	 * @param int     $loginDate
-	 * @param string  $skinhash
-	 * @param int     $pin
 	 * @param string  $linkedign
 	 * @return bool
 	 */
-	public function updatePlayer(IPlayer $player, string $lastIp = null, string $ip = null, int $loginDate = null, string $skinhash = null, int $pin = null, string $linkedign = null) : bool;
+	public function updatePlayer(IPlayer $player, string $lastIp = null, string $ip = null, int $loginDate = null, string $linkedign = null) : bool;
 
 	/**
 	 * @param string $name

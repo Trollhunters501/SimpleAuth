@@ -56,10 +56,8 @@ class SimpleAuth extends PluginBase{
 	/** @var string[] */
 	protected $messages = [];
 	protected $messageTask = null;
-	private $antihack = [];
 	public $notRelogged = [];
 	private $allowLinking = false;
-	private $purePerms;
 
 	/**
 	 * @api
@@ -112,7 +110,7 @@ class SimpleAuth extends PluginBase{
 		$this->getMessageTask()->removePlayer($player);
 
 		unset($this->blockSessions[$player->getAddress() . ":" . strtolower($player->getName())]);
-		$this->provider->updatePlayer($player, $player->getUniqueId()->toString(), $player->getAddress(), time(), hash("md5", $player->getSkin()->getSkinData()), null, null);
+		$this->provider->updatePlayer($player, $player->getUniqueId()->toString(), $player->getAddress(), time(), null);
 		return true;
 	}
 
@@ -256,11 +254,6 @@ class SimpleAuth extends PluginBase{
 				if($sender instanceof Player){
 
 					if($this->isPlayerAuthenticated($sender)){
-						if($this->antihack["enabled"]){
-							$pin = mt_rand(1000, 9999);
-							$this->updatePin($sender, $pin);
-							$sender->sendMessage(TEXTFORMAT::LIGHT_PURPLE . $this->antihack["pinchanged"] . TEXTFORMAT::WHITE . $pin);
-						}
 						return true;
 					}
 
@@ -272,101 +265,15 @@ class SimpleAuth extends PluginBase{
 					$password = $args[0];
 
 					$data = $this->provider->getPlayerData($sender->getName());
-					$superadmin = false;
-
-					if(isset($this->purePerms)){
-						$currentgroup = $this->purePerms->getUserDataMgr()->getGroup($sender);
-						$currentgroupName = $currentgroup->getName();
-						$superadminranks = $this->purePerms->getConfigValue("superadmin-ranks");
-						$superadmin = in_array($currentgroupName, $superadminranks);
-					}
-
-					$protectsuperadmins = $this->antihack["protectsuperadmins"];
-					$protectops = $this->antihack["protectops"];
-
-					$checkthisrank = ($protectops && $sender->isOp()) || (!$protectsuperadmins) || ($protectsuperadmins && $superadmin);
-
-					$concordance = 0;
-
-					if($sender->getAddress() === $data["ip"])
-						$concordance++;
-					if($sender->getPlayer()->getUniqueId()->toString() === $data["lastip"])
-						$concordance++;
-					if(hash("md5", $sender->getSkin()->getSkinData()) == $data["skinhash"])
-						$concordance++;
-
-					if($checkthisrank && isset($data["pin"]) && ($this->antihack["enabled"])){
-
-						$this->getLogger()->debug("Current IP: " . $sender->getAddress() . " - Saved IP: " . $data["ip"] . "\n");
-						$this->getLogger()->debug("Current SKIN: " . (hash("md5", $sender->getSkin()->getSkinData())) . " - Saved Skin: " . $data["skinhash"] . "\n");
-						$this->getLogger()->debug("Current UUID: " . $sender->getPlayer()->getUniqueId()->toString() . " - Saved UUID: " . $data["lastip"] . "\n");
-
-						if($concordance < ($this->antihack["threat"]) && (!(isset($args[1]) && ($data["pin"] == $args[1])))){
-
-							$this->tryAuthenticatePlayer($sender);
-
-							$this->getLogger()->info($this->antihack["hackwarning"] . $sender->getName());
-
-							$sender->sendMessage(TextFormat::RED . ($this->antihack["pinhelp1"]));
-							$sender->sendMessage(TextFormat::GOLD . ($this->antihack["pinhelp2"]));
-							$sender->sendMessage(TextFormat::RED . ($this->antihack["pinhelp3"]));
-							$sender->sendMessage(TextFormat::LIGHT_PURPLE . ($this->antihack["pinhelp4"]));
-							return true;
-						}
-					}
 
 					if(hash_equals($data["hash"], $this->hash(strtolower($sender->getName()), $password)) and $this->authenticatePlayer($sender)){
 						// LOGIN SUCCESS!!
-
-						if(!$this->antihack["enabled"] || !$checkthisrank)
-							return true;
-
-						if(!isset($data["pin"])){
-							$pin = mt_rand(1000, 9999);
-							$this->updatePin($sender, $pin);
-							$sender->sendMessage(TEXTFORMAT::LIGHT_PURPLE . $this->antihack["pintext"] . TEXTFORMAT::WHITE . $pin);
-
-							return true;
-						}
-						if($concordance < ($this->antihack["threat"])){
-							$pin = mt_rand(1000, 9999);
-							$this->updatePin($sender, $pin);
-							$sender->sendMessage(TEXTFORMAT::LIGHT_PURPLE . $this->antihack["pinchanged"] . TEXTFORMAT::WHITE . $pin);
-						}else{
-							//ALL GOOD...
-							$data = $this->provider->getPlayerData($sender->getName());
-							$pin = $data["pin"];
-							$sender->sendMessage(TEXTFORMAT::LIGHT_PURPLE . $this->antihack["pinunchanged"] . TEXTFORMAT::WHITE . $pin);
-						}
 						return true;
 					}else{
 						$this->tryAuthenticatePlayer($sender);
 						$sender->sendMessage(TextFormat::RED . $this->getMessage("login.error.password") ?? "Incorrect Password");
 						return true;
 					}
-				}else{//Console reset Security Checks for a player
-					if(!isset($args[0])){
-						$sender->sendMessage($this->antihack["consolehelp"]);
-						return true;
-					}
-
-					$player = $this->getServer()->getPlayer($args[0]);
-
-					if($player instanceof Player){
-						$this->updatePin($player, 0);
-						$sender->sendMessage(TEXTFORMAT::LIGHT_PURPLE . $this->antihack["pinreset"] . $player->getName());
-						return true;
-					}
-
-					$player = $this->getServer()->getOfflinePlayer($args[0]);
-
-					if($player instanceof OfflinePlayer){
-						$this->updatePin($player, 0);
-						$sender->sendMessage(TEXTFORMAT::LIGHT_PURPLE . $this->antihack["pinreset"] . $player->getName());
-						return true;
-					}
-					$sender->sendMessage(TextFormat::RED . $this->antihack["noplayer"]);
-					return true;
 				}
 				break;
 			case "register":
@@ -383,12 +290,6 @@ class SimpleAuth extends PluginBase{
 					}
 
 					if($this->registerPlayer($sender, $password) and $this->authenticatePlayer($sender)){
-						if(!$this->antihack["enabled"])
-							return true;
-
-						$pin = mt_rand(1000, 9999);
-						$this->updatePin($sender, $pin);
-						$sender->sendMessage(TEXTFORMAT::AQUA . $this->antihack["pinregister"] . TEXTFORMAT::WHITE . $pin);
 						return true;
 					}else{
 						$sender->sendMessage(TextFormat::RED . $this->getMessage("register.error.general") ?? "Error during authentication.");
@@ -510,10 +411,6 @@ class SimpleAuth extends PluginBase{
 		$messages = (new Config($this->getDataFolder() . "messages.yml"))->getAll();
 
 		$this->messages = $this->parseMessages($messages);
-
-		$this->saveResource("antihack.yml", false);
-		$this->antihack = (new Config($this->getDataFolder() . "antihack.yml"))->getAll();
-
 
 		$registerCommand = $this->getCommand("register");
 		$registerCommand->setUsage($this->getMessage("register.usage") ?? "/register <password>");
@@ -657,9 +554,5 @@ class SimpleAuth extends PluginBase{
 		}
 
 		return $this->messageTask;
-	}
-
-	private function updatePin(IPlayer $player, $pin){
-		$this->provider->updatePlayer($player, null, null, null, null, $pin, null);
 	}
 }
