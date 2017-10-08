@@ -90,7 +90,7 @@ class MySQLDataProvider implements DataProvider{
 			"hash" => $hash,
 			"ip" => $player->getPlayer()->getAddress(),
 			"cid" => $player->getPlayer->getClientId(),
-			"skinhash" => hash("md5", $player->getPlayer()->getSkin()->getSkinData()()),
+			"skinhash" => hash("md5", $player->getPlayer()->getSkin()->getSkinData()),
 			"pin" => null
 		];
 

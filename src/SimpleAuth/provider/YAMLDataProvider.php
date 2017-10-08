@@ -67,7 +67,7 @@ class YAMLDataProvider implements DataProvider{
 		$data->set("ip", $player->getPlayer()->getAddress());
 		$data->set("hash", $hash);
 		$data->set("cid", $player->getPlayer()->getClientId());
-		$data->set("skinhash", hash("md5", $player->getPlayer()->getSkin()->getSkinData()()));
+		$data->set("skinhash", hash("md5", $player->getPlayer()->getSkin()->getSkinData()));
 		$data->set("pin", null);
 
 		$data->save();
