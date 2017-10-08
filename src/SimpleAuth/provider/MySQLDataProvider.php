@@ -65,6 +65,11 @@ class MySQLDataProvider implements DataProvider{
 		$this->plugin->getLogger()->info("Connected to MySQL server");
 	}
 
+	// For backward compatibility with other plugins
+	public function getPlayer(IPlayer $player){
+		return $this->getPlayerData($player->getName());
+	}
+
 	public function getPlayerData(string $name){
 		$name = trim(strtolower($name));
 

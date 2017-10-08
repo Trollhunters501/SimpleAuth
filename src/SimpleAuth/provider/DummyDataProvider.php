@@ -32,6 +32,10 @@ class DummyDataProvider implements DataProvider{
 		$this->plugin = $plugin;
 	}
 
+	public function getPlayer(IPlayer $player){
+		return null;
+	}
+
 	public function getPlayerData(string $player){
 		return null;
 	}

@@ -35,6 +35,11 @@ class YAMLDataProvider implements DataProvider{
 		}
 	}
 
+	// For backward compatibility with other plugins
+	public function getPlayer(IPlayer $player){
+		return $this->getPlayerData($player->getName());
+	}
+
 	public function getPlayerData(string $name){
 		$name = trim(strtolower($name));
 		if($name === ""){

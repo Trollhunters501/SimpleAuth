@@ -26,6 +26,13 @@ use SimpleAuth\SimpleAuth;
 interface DataProvider{
 
 	/**
+	 * @param IPlayer $player
+	 *
+	 * @return array, or null if it does not exist
+	 */
+	public function getPlayer(IPlayer $player);
+
+	/**
 	 * @param string $name
 	 *
 	 * @return array, or null if it does not exist
