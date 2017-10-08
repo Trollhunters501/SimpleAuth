@@ -2,6 +2,7 @@
 branches:
 - master
 - account-mapping
+- mergedmaster
 projects:
   SimpleAuth:
     path: ""
