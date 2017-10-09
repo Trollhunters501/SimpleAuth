@@ -460,13 +460,6 @@ class SimpleAuth extends PluginBase{
 			$this->deauthenticatePlayer($player);
 		}
 
-		$this->purePerms = $this->getServer()->getPluginManager()->getPlugin("PurePerms");
-		if(isset($this->purePerms)){
-			$this->getLogger()->info("Connected to PurePerms");
-		}else{
-			$this->getLogger()->info("Could Not Find PurePerms");
-		}
-
 		$this->getLogger()->info("Everything loaded!");
 	}
 
