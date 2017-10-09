@@ -59,6 +59,9 @@ class SimpleAuth extends PluginBase{
 	public $notRelogged = [];
 	private $allowLinking = false;
 
+	/** @var string[] */
+	public $devices;
+
 	/**
 	 * @api
 	 *
@@ -105,12 +108,13 @@ class SimpleAuth extends PluginBase{
 		}
 
 		$player->recalculatePermissions();
-		$player->sendMessage(TextFormat::GREEN . $this->getMessage("login.success") ?? "You have been authenticated");
+		$player->sendMessage(TextFormat::GREEN . ($this->getMessage("login.success") ?? "You have been authenticated"));
 
 		$this->getMessageTask()->removePlayer($player);
 
 		unset($this->blockSessions[$player->getAddress() . ":" . strtolower($player->getName())]);
-		$this->provider->updatePlayer($player, $player->getUniqueId()->toString(), $player->getAddress(), time(), null);
+		$this->provider->updatePlayer($player, hash('md5', $player->getAddress() . ($this->devices[$player->getName()] ?? '')), $player->getAddress(), time(), null);
+		unset($this->devices[$player->getName()]);
 		return true;
 	}
 

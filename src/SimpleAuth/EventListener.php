@@ -22,7 +22,6 @@ use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\inventory\InventoryOpenEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
-use pocketmine\nbt\tag\StringTag;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
@@ -34,7 +33,9 @@ use pocketmine\event\player\PlayerPreLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\utils\TextFormat;
 use pocketmine\Player;
 use pocketmine\Server;
 
@@ -53,14 +54,16 @@ class EventListener implements Listener{
 	 * @priority LOWEST
 	 */
 	public function onPlayerJoin(PlayerJoinEvent $event){
-		if($this->plugin->getConfig()->get("authenticateByLastUniqueId") === true and $event->getPlayer()->hasPermission("simpleauth.lastid")){
-			$config = $this->plugin->getDataProvider()->getPlayerData($event->getPlayer()->getName());
-			if($config !== null and $config["lastip"] !== null && hash_equals($config["lastip"], $event->getPlayer()->getUniqueId()->toString())){
-				$this->plugin->authenticatePlayer($event->getPlayer());
-				return;
+		$player = $event->getPlayer();
+		if($this->plugin->getConfig()->get("authenticateByLastUniqueId") === true && $player->hasPermission("simpleauth.lastid")){
+			$config = $this->plugin->getDataProvider()->getPlayerData($player->getName());
+			if($config !== null && $config["lastip"] !== null && hash_equals($config["lastip"], hash('md5', $player->getAddress() . ($this->plugin->devices[$player->getName()] ?? '')))){
+				$this->plugin->authenticatePlayer($player);
+				$player->sendMessage(TextFormat::GREEN . ($this->plugin->getMessage("login.success") ?? "You have been authenticated"));
+			}else{
+				$this->plugin->deauthenticatePlayer($player);
 			}
 		}
-		$this->plugin->deauthenticatePlayer($event->getPlayer());
 	}
 
 	/**
@@ -92,26 +95,26 @@ class EventListener implements Listener{
 
 	public function onDataPacketReceive(DataPacketReceiveEvent $event){
 		if($event->getPacket() instanceof LoginPacket && $event->getPacket()->username !== null){
-			if(!$this->plugin->getConfig()->get("allowLinking")){
-				return;
-			}
-			$linkedPlayerName = $this->plugin->getDataProvider()->getLinked($event->getPacket()->username);
-			if($linkedPlayerName !== null && $linkedPlayerName !== ""){
-				$pmdata = $this->plugin->getDataProvider()->getPlayerData($linkedPlayerName);
-				if($pmdata !== null){
-					$player = $event->getPlayer();
-					$player->namedtag = Server::getInstance()->getOfflinePlayerData($linkedPlayerName);
-					$tagname = $player->namedtag->NameTag;
-					if($tagname !== null){
-						$player->namedtag->NameTag = new StringTag("NameTag", $linkedPlayerName);
-					}else{
-						$player->namedtag["NameTag"] = $linkedPlayerName;
+			if($this->plugin->getConfig()->get("allowLinking")){
+				$linkedPlayerName = $this->plugin->getDataProvider()->getLinked($event->getPacket()->username);
+				if($linkedPlayerName !== null && $linkedPlayerName !== ""){
+					$pmdata = $this->plugin->getDataProvider()->getPlayerData($linkedPlayerName);
+					if($pmdata !== null){
+						$player = $event->getPlayer();
+						$player->namedtag = Server::getInstance()->getOfflinePlayerData($linkedPlayerName);
+						$tagname = $player->namedtag->NameTag;
+						if($tagname !== null){
+							$player->namedtag->NameTag = new StringTag("NameTag", $linkedPlayerName);
+						}else{
+							$player->namedtag["NameTag"] = $linkedPlayerName;
+						}
+						$player->setDisplayName($linkedPlayerName);
+						$player->setNameTag($linkedPlayerName);
+						$event->getPacket()->username = $linkedPlayerName;
 					}
-					$player->setDisplayName($linkedPlayerName);
-					$player->setNameTag($linkedPlayerName);
-					$event->getPacket()->username = $linkedPlayerName;
 				}
 			}
+			$this->plugin->devices[$event->getPacket()->username] = $event->getPacket()->clientData["DeviceModel"];
 		}
 	}
 
