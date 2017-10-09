@@ -18,6 +18,8 @@
 namespace SimpleAuth\provider;
 
 use pocketmine\IPlayer;
+use pocketmine\Player;
+use pocketmine\OfflinePlayer;
 use pocketmine\utils\Config;
 use SimpleAuth\SimpleAuth;
 
@@ -29,6 +31,13 @@ interface DataProvider{
 	 * @return array, or null if it does not exist
 	 */
 	public function getPlayer(IPlayer $player);
+
+	/**
+	 * @param string $name
+	 *
+	 * @return array, or null if it does not exist
+	 */
+	public function getPlayerData(string $player);
 
 	/**
 	 * @param IPlayer $player
@@ -51,17 +60,48 @@ interface DataProvider{
 	public function unregisterPlayer(IPlayer $player);
 
 	/**
-	 * @param IPlayer $player
-	 * @param array   $config
+	 * @param string $name
+	 * @param array  $config
 	 */
-	public function savePlayer(IPlayer $player, array $config);
+	public function savePlayer(string $name, array $config);
 
 	/**
 	 * @param IPlayer $player
-	 * @param string  $lastId
+	 * @param string  $lastIp
+	 * @param string  $ip
 	 * @param int     $loginDate
+	 * @param string  $linkedign
+	 * @return bool
 	 */
-	public function updatePlayer(IPlayer $player, $lastId = null, $ip = null, $loginDate = null, $cid = null, $skinhash = null, $pin = null);
+	public function updatePlayer(IPlayer $player, string $lastIp = null, string $ip = null, int $loginDate = null, string $linkedign = null) : bool;
+
+	/**
+	 * @param string $name
+	 *
+	 * @return string or null
+	 */
+	public function getLinked(string $name);
+
+	/**
+	 * @param Player        $sender
+	 * @param OfflinePlayer $oldPlayer
+	 * @param string        $oldIGN
+	 *
+	 * @return bool $success
+	 */
+	public function linkXBL(Player $sender, OfflinePlayer $oldPlayer, string $oldIGN);
+
+	/**
+	 * @param Player $player
+	 *
+	 * @return string or null if not linked
+	 */
+	public function unlinkXBL(Player $player);
+
+	/**
+	 * @return bool for DB supports linking
+	 */
+	public function isDBLinkingReady() : bool;
 
 	public function close();
 }

@@ -23,7 +23,7 @@ minPasswordLength: 6
 #Will block user after this number of failed attempts. Set to 0 to disable
 blockAfterFail: 6
 
-#If enabled, accounts that are using the same unique id (ip + clientId + name) when logging in again will be automatically authenticated
+#If enabled, accounts that are using the same unique id (ip + device model) when logging in again will be automatically authenticated
 authenticateByLastUniqueId: false
 
 #If enabled, will set all the permissions for simleauth.command.register to false
@@ -35,3 +35,8 @@ disableLogin: false
 #Number of seconds to wait for a player to be authenticated. If false, disables the timeout
 #TODO
 authenticateTimeout: 120
+
+#If enabled, will allow users to link and unlink accounts
+#Update MySQL with 'ALTER TABLE simpleauth.simpleauth_players ADD linkedign VARCHAR(16);'
+#Update SQLITE3 with 'ALTER TABLE simpleauth.simpleauth_players ADD linkedign TEXT;`
+allowLinking: false

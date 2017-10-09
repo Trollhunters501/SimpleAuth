@@ -22,6 +22,7 @@ use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\inventory\InventoryOpenEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -32,11 +33,16 @@ use pocketmine\event\player\PlayerPreLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\nbt\tag\StringTag;
+use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\utils\TextFormat;
 use pocketmine\Player;
+use pocketmine\Server;
 
 class EventListener implements Listener{
 	/** @var SimpleAuth */
 	private $plugin;
+	private $perms;
 
 	public function __construct(SimpleAuth $plugin){
 		$this->plugin = $plugin;
@@ -48,14 +54,16 @@ class EventListener implements Listener{
 	 * @priority LOWEST
 	 */
 	public function onPlayerJoin(PlayerJoinEvent $event){
-		if($this->plugin->getConfig()->get("authenticateByLastUniqueId") === true and $event->getPlayer()->hasPermission("simpleauth.lastid")){
-			$config = $this->plugin->getDataProvider()->getPlayer($event->getPlayer());
-			if($config !== null and $config["lastip"] === $event->getPlayer()->getUniqueId()->toString()){
-				$this->plugin->authenticatePlayer($event->getPlayer());
-				return;
+		$player = $event->getPlayer();
+		if($this->plugin->getConfig()->get("authenticateByLastUniqueId") === true && $player->hasPermission("simpleauth.lastid")){
+			$config = $this->plugin->getDataProvider()->getPlayerData($player->getName());
+			if($config !== null && $config["lastip"] !== null && hash_equals($config["lastip"], hash('md5', $player->getAddress() . ($this->plugin->devices[$player->getName()] ?? '')))){
+				$this->plugin->authenticatePlayer($player);
+				$player->sendMessage(TextFormat::GREEN . ($this->plugin->getMessage("login.success") ?? "You have been authenticated"));
+			}else{
+				$this->plugin->deauthenticatePlayer($player);
 			}
 		}
-		$this->plugin->deauthenticatePlayer($event->getPlayer());
 	}
 
 	/**
@@ -77,7 +85,37 @@ class EventListener implements Listener{
 				} //if other non logged in players are there leave it to the default behaviour
 			}
 		}
+	}
 
+	/**
+	 * @param DataPacketReceiveEvent $event
+	 *
+	 * @priority LOWEST
+	 */
+
+	public function onDataPacketReceive(DataPacketReceiveEvent $event){
+		if($event->getPacket() instanceof LoginPacket && $event->getPacket()->username !== null){
+			if($this->plugin->getConfig()->get("allowLinking")){
+				$linkedPlayerName = $this->plugin->getDataProvider()->getLinked($event->getPacket()->username);
+				if($linkedPlayerName !== null && $linkedPlayerName !== ""){
+					$pmdata = $this->plugin->getDataProvider()->getPlayerData($linkedPlayerName);
+					if($pmdata !== null){
+						$player = $event->getPlayer();
+						$player->namedtag = Server::getInstance()->getOfflinePlayerData($linkedPlayerName);
+						$tagname = $player->namedtag->NameTag;
+						if($tagname !== null){
+							$player->namedtag->NameTag = new StringTag("NameTag", $linkedPlayerName);
+						}else{
+							$player->namedtag["NameTag"] = $linkedPlayerName;
+						}
+						$player->setDisplayName($linkedPlayerName);
+						$player->setNameTag($linkedPlayerName);
+						$event->getPacket()->username = $linkedPlayerName;
+					}
+				}
+			}
+			$this->plugin->devices[$event->getPacket()->username] = $event->getPacket()->clientData["DeviceModel"];
+		}
 	}
 
 	/**
@@ -104,6 +142,11 @@ class EventListener implements Listener{
 				$command = substr($message, 1);
 				$args = explode(" ", $command);
 				if($args[0] === "register" or $args[0] === "login" or $args[0] === "help"){
+					if(!$this->plugin->getConfig()->get("disableRegister") && $args[0] === "register"){
+						$this->forcePerms($event->getPlayer());
+					}elseif(!$this->plugin->getConfig()->get("disableLogin") && $args[0] === "login"){
+						$this->forcePerms($event->getPlayer());
+					}
 					$this->plugin->getServer()->dispatchCommand($event->getPlayer(), $command);
 				}else{
 					$this->plugin->sendAuthenticateMessage($event->getPlayer());
@@ -111,6 +154,38 @@ class EventListener implements Listener{
 			}elseif(!$event->getPlayer()->hasPermission("simpleauth.chat")){
 				$event->setCancelled(true);
 			}
+		}
+	}
+
+	//Borrowed from SimpleAuthHelper
+	private function checkPerm(Player $pl, $perm){
+		if($pl->hasPermission($perm)) return;
+		$n = strtolower($pl->getName());
+		$this->plugin->getLogger()->debug("Fixing %1% for %2%", $perm, $n);
+		if(!isset($this->perms[$n])) $this->perms[$n] = $pl->addAttachment($this->plugin);
+		$this->perms[$n]->setPermission($perm, true);
+		$pl->recalculatePermissions();
+	}
+
+	public function forcePerms(Player $player){
+		if($this->plugin->isPlayerAuthenticated($player)){
+			$this->resetPerms($player);
+			return;
+		}
+		if(!$this->plugin->isPlayerRegistered($player)){
+			$this->checkPerm($player, "simpleauth.command.register");
+			return;
+		}
+		$this->checkPerm($player, "simpleauth.command.login");
+	}
+
+	public function resetPerms(Player $pl){
+		$n = strtolower($pl->getName());
+		if(isset($this->perms[$n])){
+			$attach = $this->perms[$n];
+			unset($this->perms[$n]);
+			$pl->removeAttachment($attach);
+			$pl->recalculatePermissions();
 		}
 	}
 
@@ -156,6 +231,9 @@ class EventListener implements Listener{
 	 * @priority MONITOR
 	 */
 	public function onPlayerQuit(PlayerQuitEvent $event){
+		if(isset($this->plugin->notRelogged[spl_object_hash($event->getPlayer())])){
+			unset ($this->plugin->notRelogged[spl_object_hash($event->getPlayer())]);
+		}
 		$this->plugin->closePlayer($event->getPlayer());
 	}
 
