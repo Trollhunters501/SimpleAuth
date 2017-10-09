@@ -60,10 +60,10 @@ class EventListener implements Listener{
 			if($config !== null && $config["lastip"] !== null && hash_equals($config["lastip"], hash('md5', $player->getAddress() . ($this->plugin->devices[$player->getName()] ?? '')))){
 				$this->plugin->authenticatePlayer($player);
 				$player->sendMessage(TextFormat::GREEN . ($this->plugin->getMessage("login.success") ?? "You have been authenticated"));
-			}else{
-				$this->plugin->deauthenticatePlayer($player);
+				return;
 			}
 		}
+		$this->plugin->deauthenticatePlayer($player);
 	}
 
 	/**
