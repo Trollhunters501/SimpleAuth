@@ -23,7 +23,7 @@ minPasswordLength: 6
 #Will block user after this number of failed attempts. Set to 0 to disable
 blockAfterFail: 6
 
-#If enabled, accounts that are using the same unique id (ip + clientId + name) when logging in again will be automatically authenticated
+#If enabled, accounts that are using the same unique id (ip + device model) when logging in again will be automatically authenticated
 authenticateByLastUniqueId: false
 
 #If enabled, will set all the permissions for simleauth.command.register to false
