@@ -1,10 +1,13 @@
-# SimpleAuth 2.x - Shoghicp
+# SimpleAuth 2.x
 
-#### Account linking by Awzaw
+By @Shoghicp
+
+[![Poggit Release](https://poggit.pmmp.io/shield.approved/SimpleAuth)](https://poggit.pmmp.io/p/SimpleAuth)
 
 #### IMPORTANT
 You no longer need to set "hack login" and "hack register" perms with SimpleAuthHelper.
-You must also update the database if you use MySQL or SQLite:
+
+To use account linking you must also update the database if you use MySQL or SQLite:
 
 MySQL:
 
@@ -45,6 +48,7 @@ SimpleAuth2 is compatible with SimpleAuthHelper, and works with these providers:
 * `/unregister <password>` (TODO)
 * `/link <otherIGN> <otherpassword>`
 * `/unlink`
+* For Console: `/unlink <playerIGN>`
 * For OPs: `/simpleauth <command: help|unregister> [parameters...]` (TODO)
 
 ## Configuration
@@ -62,6 +66,7 @@ You can modify the _SimpleAuth/config.yml_ file on the _plugins_ directory once 
 | dataProviderSettings | array | Sets the settings for the chosen dataProvider |
 | disableRegister | boolean | false | Will set all the permissions for simleauth.command.register to false |
 | disableLogin | boolean | false | Will set all the permissions for simleauth.command.login to false |
+| allowLinking | boolean | false | Allow users to /link and /unlink accounts (update MySQL/SQLITE DB)|
 
 ## Permissions
 

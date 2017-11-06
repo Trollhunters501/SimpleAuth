@@ -15,12 +15,13 @@
  * GNU General Public License for more details.
 */
 
+declare(strict_types=1);
+
 namespace SimpleAuth\provider;
 
 use pocketmine\IPlayer;
 use pocketmine\OfflinePlayer;
 use pocketmine\Player;
-use pocketmine\Server;
 use SimpleAuth\SimpleAuth;
 
 class SQLite3DataProvider implements DataProvider{
@@ -46,7 +47,7 @@ class SQLite3DataProvider implements DataProvider{
 			$this->database = new \SQLite3($this->plugin->getDataFolder() . "players.db", SQLITE3_OPEN_READWRITE);
 		}
 		try{ // not great I know... if you can check if columns exist in sqlite, please tell me
-			$prepare = $this->database->query("SELECT linkedign FROM players WHERE linkedign = 'shoghicp'");
+			$this->database->query("SELECT linkedign FROM players WHERE linkedign = 'shoghicp'");
 			$this->linkingready = true;
 		}catch(\Exception $e){
 			$this->linkingready = false;
@@ -169,17 +170,17 @@ class SQLite3DataProvider implements DataProvider{
 		return $success;
 	}
 
-	public function unlinkXBL(Player $player){
-		$xblIGN = $this->getLinked($player->getName());
+	public function unlinkXBL(string $playerign){
+		$xblIGN = $this->getLinked($playerign);
 		$xbldata = $this->getPlayerData($xblIGN);
 		if(isset($xbldata)){
 			$xbldata["linkedign"] = "";
 			$this->savePlayer($xblIGN, $xbldata);
 		}
-		$pmdata = $this->getPlayerData($player->getName());
+		$pmdata = $this->getPlayerData($playerign);
 		if(isset($pmdata)){
 			$pmdata["linkedign"] = "";
-			$this->savePlayer($player->getName(), $pmdata);
+			$this->savePlayer($playerign, $pmdata);
 		}
 		return $xblIGN;
 	}

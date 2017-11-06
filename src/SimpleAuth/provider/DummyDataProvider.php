@@ -15,12 +15,13 @@
  * GNU General Public License for more details.
 */
 
+declare(strict_types=1);
+
 namespace SimpleAuth\provider;
 
 use pocketmine\IPlayer;
 use pocketmine\Player;
 use pocketmine\OfflinePlayer;
-use pocketmine\utils\Config;
 use SimpleAuth\SimpleAuth;
 
 class DummyDataProvider implements DataProvider{
@@ -36,7 +37,7 @@ class DummyDataProvider implements DataProvider{
 		return null;
 	}
 
-	public function getPlayerData(string $player){
+	public function getPlayerData(string $playerign){
 		return null;
 	}
 
@@ -68,7 +69,7 @@ class DummyDataProvider implements DataProvider{
 
 	}
 
-	public function unlinkXBL(Player $player){
+	public function unlinkXBL(string $playerign){
 
 	}
 

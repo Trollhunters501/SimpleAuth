@@ -15,6 +15,8 @@
  * GNU General Public License for more details.
 */
 
+declare(strict_types=1);
+
 namespace SimpleAuth;
 
 use pocketmine\command\Command;
@@ -50,7 +52,10 @@ class SimpleAuth extends PluginBase{
 	/** @var DataProvider */
 	protected $provider;
 
-	protected $blockPlayers = 6;
+    /** @var int */
+    protected $blockPlayers = 6;
+
+    /** @var array */
 	protected $blockSessions = [];
 
 	/** @var string[] */
@@ -220,9 +225,9 @@ class SimpleAuth extends PluginBase{
 	 *
 	 * @return DataProvider
 	 */
-	public function getDataProvider(){
-		return $this->provider;
-	}
+    public function getDataProvider() : DataProvider{
+        return $this->provider;
+    }
 
 	/* -------------------------- Non-API part -------------------------- */
 
@@ -231,14 +236,14 @@ class SimpleAuth extends PluginBase{
 		$this->getMessageTask()->removePlayer($player);
 	}
 
-	protected function checkPassword($pl, $password){
-		$data = $this->getDataProvider()->getPlayerData($pl->getName());
-		if($data === null){
-			return false;
-		}
-		$passok = hash_equals($data["hash"], $this->hash(strtolower($pl->getName()), $password));
-		return $passok;
-	}
+    protected function checkPassword($pl, $password) : bool{
+        $data = $this->getDataProvider()->getPlayerData($pl->getName());
+        if($data === null){
+            return false;
+        }
+        $passok = hash_equals($data["hash"], $this->hash(strtolower($pl->getName()), $password));
+        return $passok;
+    }
 
 	public function sendAuthenticateMessage(Player $player){
 		$config = $this->provider->getPlayerData($player->getName());
@@ -351,17 +356,37 @@ class SimpleAuth extends PluginBase{
 				break;
 
 			case "unlink":
-				if(!($sender instanceof Player)) return false;
 				if(!$this->getConfig()->get("allowLinking")){
 					$sender->sendMessage(TextFormat::AQUA . "Please enable 'allowLinking' in SimpleAuth config.yml");
 					return true;
 				}
+                if(!($sender instanceof Player)){
+				    if (!isset($args[0])) {
+                        $sender->sendMessage(TextFormat::RED . ($this->getMessage("link.consoleerror") ?? "Please use /unlink <player> with player IGN in double quotes if it contains spaces"));
+                        return true;
+                    }
+                    $linked = $this->getDataProvider()->getLinked($args[0]);
+                    if($linked === null or $linked === ""){
+                        $sender->sendMessage(TextFormat::RED . ($this->getMessage("link.consoleunlinkerror") ?? "That account is not linked"));
+                        return true;
+                    }
+                    $xboxIGN = $this->getDataProvider()->unlinkXBL($args[0]);
+                    if($xboxIGN !== null && $xboxIGN !== ""){
+                        $line1 = $this->getMessage("link.consoleunlinked") ? $this->getMessage("link.consoleunlinked")
+                            . $args[0] : "You have unlinked the account " . $args[0];
+                        $message = TextFormat::GREEN . $line1;
+                        $sender->sendMessage($message);
+                    }else{
+                        $sender->sendMessage(TextFormat::RED . $this->getMessage("link.unlinkerror") ?? "There was a problem unlinking those accounts");
+                    }
+                    return true;
+                }
 				$linked = $this->getDataProvider()->getLinked($sender->getName());
 				if($linked === null or $linked === ""){
 					$sender->sendMessage(TextFormat::RED . ($this->getMessage("link.notlinkederror") ?? "Your account is not linked"));
 					return true;
 				}
-				$xboxIGN = $this->getDataProvider()->unlinkXBL($sender);
+				$xboxIGN = $this->getDataProvider()->unlinkXBL($sender->getName());
 				if($xboxIGN !== null && $xboxIGN !== ""){
 					$currentIGN = $sender->getName();
 					if(isset($this->notRelogged[spl_object_hash($sender)])){
@@ -380,29 +405,35 @@ class SimpleAuth extends PluginBase{
 					return true;
 				}
 				return true;
-				break;
-
 		}
-
 		return false;
 	}
 
-	private function parseMessages(array $messages){
-		$result = [];
-		foreach($messages as $key => $value){
-			if(is_array($value)){
-				foreach($this->parseMessages($value) as $k => $v){
-					$result[$key . "." . $k] = $v;
-				}
-			}else{
-				$result[$key] = $value;
-			}
-		}
+    /**
+     * @param array $messages
+     * @return array
+     */
+    private function parseMessages(array $messages) : array{
+        $result = [];
+        foreach($messages as $key => $value){
+            if(is_array($value)){
+                foreach($this->parseMessages($value) as $k => $v){
+                    $result[$key . "." . $k] = $v;
+                }
+            }else{
+                $result[$key] = $value;
+            }
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	public function getMessage($key){
+
+    /**
+     * @param $key
+     * @return null|string
+     */
+    public function getMessage($key){
 		return isset($this->messages[$key]) ? $this->messages[$key] : null;
 	}
 
@@ -470,7 +501,12 @@ class SimpleAuth extends PluginBase{
 		$this->blockSessions = [];
 	}
 
-	public static function orderPermissionsCallback($perm1, $perm2){
+    /**
+     * @param $perm1
+     * @param $perm2
+     * @return int
+     */
+    public static function orderPermissionsCallback($perm1, $perm2) : int{
 		if(self::isChild($perm1, $perm2)){
 			return -1;
 		}elseif(self::isChild($perm2, $perm1)){
@@ -480,7 +516,12 @@ class SimpleAuth extends PluginBase{
 		}
 	}
 
-	public static function isChild($perm, $name){
+    /**
+     * @param $perm
+     * @param $name
+     * @return bool
+     */
+    public static function isChild($perm, $name) : bool{
 		$perm = explode(".", $perm);
 		$name = explode(".", $name);
 
@@ -495,7 +536,10 @@ class SimpleAuth extends PluginBase{
 		return true;
 	}
 
-	protected function removePermissions(PermissionAttachment $attachment){
+    /**
+     * @param PermissionAttachment $attachment
+     */
+    protected function removePermissions(PermissionAttachment $attachment){
 		$permissions = [];
 		foreach($this->getServer()->getPluginManager()->getPermissions() as $permission){
 			$permissions[$permission->getName()] = false;
@@ -537,14 +581,14 @@ class SimpleAuth extends PluginBase{
 	 *
 	 * @return string[128] hex 512-bit hash
 	 */
-	private function hash($salt, $password){
+	private function hash(string $salt, string $password) : string{
 		return bin2hex(hash("sha512", $password . $salt, true) ^ hash("whirlpool", $salt . $password, true));
 	}
 
 	/**
 	 * @return ShowMessageTask
 	 */
-	protected function getMessageTask(){
+	protected function getMessageTask() : ShowMessageTask{
 		if($this->messageTask === null){
 			$this->messageTask = new ShowMessageTask($this);
 			$this->getServer()->getScheduler()->scheduleRepeatingTask($this->messageTask, 10);

@@ -15,6 +15,8 @@
  * GNU General Public License for more details.
 */
 
+declare(strict_types=1);
+
 namespace SimpleAuth;
 
 use pocketmine\event\block\BlockBreakEvent;
@@ -161,7 +163,7 @@ class EventListener implements Listener{
 	private function checkPerm(Player $pl, $perm){
 		if($pl->hasPermission($perm)) return;
 		$n = strtolower($pl->getName());
-		$this->plugin->getLogger()->debug("Fixing %1% for %2%", $perm, $n);
+		$this->plugin->getLogger()->debug("Fixing $perm for $n");
 		if(!isset($this->perms[$n])) $this->perms[$n] = $pl->addAttachment($this->plugin);
 		$this->perms[$n]->setPermission($perm, true);
 		$pl->recalculatePermissions();

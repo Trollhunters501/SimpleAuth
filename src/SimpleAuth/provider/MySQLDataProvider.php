@@ -15,12 +15,13 @@
  * GNU General Public License for more details.
 */
 
+declare(strict_types=1);
+
 namespace SimpleAuth\provider;
 
 use pocketmine\IPlayer;
 use pocketmine\Player;
 use pocketmine\OfflinePlayer;
-use pocketmine\Server;
 use SimpleAuth\SimpleAuth;
 use SimpleAuth\task\MySQLPingTask;
 
@@ -149,17 +150,17 @@ class MySQLDataProvider implements DataProvider{
 		return $success;
 	}
 
-	public function unlinkXBL(Player $player){
-		$xblIGN = $this->getLinked($player->getName());
+	public function unlinkXBL(string $playerign){
+		$xblIGN = $this->getLinked($playerign);
 		$xbldata = $this->getPlayerData($xblIGN);
 		if(isset($xbldata)){
 			$xbldata["linkedign"] = "";
 			$this->savePlayer($xblIGN, $xbldata);
 		}
-		$pmdata = $this->getPlayerData($player->getName());
+		$pmdata = $this->getPlayerData($playerign);
 		if(isset($pmdata)){
 			$pmdata["linkedign"] = "";
-			$this->savePlayer($player->getName(), $pmdata);
+			$this->savePlayer($playerign, $pmdata);
 		}
 		return $xblIGN;
 	}

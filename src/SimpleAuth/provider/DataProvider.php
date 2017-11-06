@@ -15,13 +15,13 @@
  * GNU General Public License for more details.
 */
 
+declare(strict_types=1);
+
 namespace SimpleAuth\provider;
 
 use pocketmine\IPlayer;
 use pocketmine\Player;
 use pocketmine\OfflinePlayer;
-use pocketmine\utils\Config;
-use SimpleAuth\SimpleAuth;
 
 interface DataProvider{
 
@@ -33,11 +33,11 @@ interface DataProvider{
 	public function getPlayer(IPlayer $player);
 
 	/**
-	 * @param string $name
+	 * @param string $playerign
 	 *
 	 * @return array, or null if it does not exist
 	 */
-	public function getPlayerData(string $player);
+	public function getPlayerData(string $playerign);
 
 	/**
 	 * @param IPlayer $player
@@ -92,11 +92,11 @@ interface DataProvider{
 	public function linkXBL(Player $sender, OfflinePlayer $oldPlayer, string $oldIGN);
 
 	/**
-	 * @param Player $player
+	 * @param string $playerign
 	 *
 	 * @return string or null if not linked
 	 */
-	public function unlinkXBL(Player $player);
+	public function unlinkXBL(string $playerign);
 
 	/**
 	 * @return bool for DB supports linking
