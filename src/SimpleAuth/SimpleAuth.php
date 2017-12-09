@@ -323,7 +323,7 @@ class SimpleAuth extends PluginBase{
 				$oldIGN = $args[0];
 				$oldPWD = $args[1];
 				$linked = $this->getDataProvider()->getLinked($sender->getName());
-				if(strtolower($sender->getName()) === strtolower($linked)){
+				if($linked !== null and $linked !== "" and strtolower($sender->getName()) === strtolower($linked)){
 					$sender->sendMessage(TextFormat::RED . ($this->getMessage("link.sameign") ?? "You cannot link to the same account you are using"));
 					return true;
 				}
