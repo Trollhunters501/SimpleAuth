@@ -104,14 +104,6 @@ class EventListener implements Listener{
 					if($pmdata !== null){
 						$player = $event->getPlayer();
 						$player->namedtag = Server::getInstance()->getOfflinePlayerData($linkedPlayerName);
-						$tagname = $player->namedtag->NameTag;
-						if($tagname !== null){
-							$player->namedtag->NameTag = new StringTag("NameTag", $linkedPlayerName);
-						}else{
-							$player->namedtag["NameTag"] = $linkedPlayerName;
-						}
-						$player->setDisplayName($linkedPlayerName);
-						$player->setNameTag($linkedPlayerName);
 						$event->getPacket()->username = $linkedPlayerName;
 					}
 				}
