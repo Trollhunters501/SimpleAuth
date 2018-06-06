@@ -62,7 +62,7 @@ class MySQLDataProvider implements DataProvider{
 		if(!$this->linkingready){
 			$this->plugin->getLogger()->info("Update MySQL Schema to enable /link");
 		}
-		$this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new MySQLPingTask($this->plugin, $this->database), 600); //Each 30 seconds
+		$this->plugin->getScheduler()->scheduleRepeatingTask(new MySQLPingTask($this->plugin, $this->database), 600); //Each 30 seconds
 		$this->plugin->getLogger()->info("Connected to MySQL server");
 	}
 

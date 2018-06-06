@@ -20,25 +20,25 @@ declare(strict_types=1);
 namespace SimpleAuth\task;
 
 use pocketmine\Player;
-use pocketmine\scheduler\PluginTask;
+use pocketmine\scheduler\Task;
 use pocketmine\utils\TextFormat;
 use SimpleAuth\SimpleAuth;
 use pocketmine\plugin\Plugin;
 
-class ShowMessageTask extends PluginTask{
+class ShowMessageTask extends Task{
 
 	/** @var Player[] */
 	private $playerList = [];
 
 	public function __construct(SimpleAuth $plugin){
-		parent::__construct($plugin);
+		$this->plugin = $plugin;
 	}
 
 	/**
 	 * @return SimpleAuth
 	 */
 	public function getPlugin() : Plugin{
-		return $this->owner;
+		return $this->plugin;
 	}
 
 	public function addPlayer(Player $player){

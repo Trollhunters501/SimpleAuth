@@ -19,16 +19,16 @@ declare(strict_types=1);
 
 namespace SimpleAuth\task;
 
-use pocketmine\scheduler\PluginTask;
+use pocketmine\scheduler\Task;
 use SimpleAuth\SimpleAuth;
 
-class MySQLPingTask extends PluginTask{
+class MySQLPingTask extends Task{
 
 	/** @var \mysqli */
 	private $database;
 
 	public function __construct(SimpleAuth $owner, \mysqli $database){
-		parent::__construct($owner);
+		$this->plugin = $owner;
 		$this->database = $database;
 	}
 

@@ -591,7 +591,7 @@ class SimpleAuth extends PluginBase{
 	protected function getMessageTask() : ShowMessageTask{
 		if($this->messageTask === null){
 			$this->messageTask = new ShowMessageTask($this);
-			$this->getServer()->getScheduler()->scheduleRepeatingTask($this->messageTask, 10);
+			$this->getScheduler()->scheduleRepeatingTask($this->messageTask, 10);
 		}
 
 		return $this->messageTask;
