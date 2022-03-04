@@ -1,8 +1,8 @@
 # SimpleAuth 2.5
 
-By @Shoghicp
+By Trollhunters501
 
-[![Poggit Release](https://poggit.pmmp.io/shield.approved/SimpleAuth)](https://poggit.pmmp.io/p/SimpleAuth)
+[![Poggit Release](https://poggit.pmmp.io/shield.approved/SimpleAuth)](https://poggit.pmmp.io/ci/Trollhunters501/SimpleAuth/~)
 
 #### IMPORTANT
 You no longer need to set "hack login" and "hack register" perms with SimpleAuthHelper.
