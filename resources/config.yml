@@ -1,9 +1,9 @@
 # Default config for SimpleAuth plugin
 
-#Sets the data provider (yaml, sqlite3, mysql, none).
+#Sets the data provider (sqlite3, mysql, none).
 #Only use none when there is another plugin that will integrate its dataProvider with SimpleAuth
 #Be aware that data is not automatically moved between data providers.
-dataProvider: yaml
+dataProvider: sqlite3
 
 #For MySQL:
 #dataProviderSettings:
