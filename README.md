@@ -38,7 +38,7 @@ Plugin for PocketMine-MP that prevents people from impersonating an account, req
 
 This version of SimpleAuth adds automatic account linking to SimpleAuth, and removes the obselete antihack protection.
 
-SimpleAuth2 is compatible with SimpleAuthHelper, and works with these providers: MySQL, YAML and SQLITE
+SimpleAuth2 is compatible with SimpleAuthHelper, and works with these providers: MySQL and SQLITE
 
 ## Commands
 
@@ -62,7 +62,7 @@ You can modify the _SimpleAuth/config.yml_ file on the _plugins_ directory once 
 | minPasswordLength | integer | 6 | Minimum length of the register password. |
 | blockAfterFail | integer | 6 | Block clients after several failed attempts |
 | authenticateByLastUniqueId | boolean | false | Enables authentication by last unique id. |
-| dataProvider | string | yaml | Selects the provider to get the data from (yaml, sqlite3, mysql, none) |
+| dataProvider | string | Selects the provider to get the data from (sqlite3, mysql, none) |
 | dataProviderSettings | array | Sets the settings for the chosen dataProvider |
 | disableRegister | boolean | false | Will set all the permissions for simleauth.command.register to false |
 | disableLogin | boolean | false | Will set all the permissions for simleauth.command.login to false |
