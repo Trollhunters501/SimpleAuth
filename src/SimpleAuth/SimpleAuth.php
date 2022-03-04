@@ -38,7 +38,6 @@ use SimpleAuth\provider\DataProvider;
 use SimpleAuth\provider\DummyDataProvider;
 use SimpleAuth\provider\MySQLDataProvider;
 use SimpleAuth\provider\SQLite3DataProvider;
-use SimpleAuth\provider\YAMLDataProvider;
 use SimpleAuth\task\ShowMessageTask;
 
 class SimpleAuth extends PluginBase{
@@ -462,10 +461,6 @@ class SimpleAuth extends PluginBase{
 		$provider = $this->getConfig()->get("dataProvider");
 		unset($this->provider);
 		switch(strtolower($provider)){
-			case "yaml":
-				$this->getLogger()->debug("Using YAML data provider");
-				$provider = new YAMLDataProvider($this);
-				break;
 			case "sqlite3":
 				$this->getLogger()->debug("Using SQLite3 data provider");
 				$provider = new SQLite3DataProvider($this);
