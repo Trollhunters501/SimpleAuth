@@ -6,6 +6,7 @@ By Trollhunters501
 
 #### IMPORTANT
 You no longer need to set "hack login" and "hack register" perms with SimpleAuthHelper.
+for it to work correctly it is recommended that you also use the AuthUI plugin
 
 To use account linking you must also update the database if you use MySQL or SQLite:
 
